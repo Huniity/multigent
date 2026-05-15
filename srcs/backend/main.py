@@ -1,6 +1,12 @@
-def main():
-    print("Hello from multigent!")
 
+from agents_ai.agents.tasks import build_bug_task
 
-if __name__ == "__main__":
-    main()
+def start_review():
+    my_bundle = build_bug_task(repo_url, arquivos_lidos)
+
+    inputs = {
+        'repo_url': 'https://github.com/Huniity/multigent.git',
+        'code_bundle': my_bundle  
+    }
+    
+    SecurityCrew().crew().kickoff(inputs=inputs)
