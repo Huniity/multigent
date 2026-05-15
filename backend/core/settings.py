@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_spectacular',
-    'apps.multigent',
-    'apps.agents_ai'
+    'multigent',
+    'agents_ai'
 ]
 
 REST_FRAMEWORK = {
