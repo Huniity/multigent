@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  backend:
+    build:
+      context: .
+      dockerfile: ops/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DJANGO_SETTINGS_MODULE: core.settings
+    env_file: .env
+    volumes:
+      - ./backend:/app
+      - ./scripts:/scripts
+      - django_logs:/app/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: node:25-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - frontend_logs:/app/logs
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 2>&1 | tee /app/logs/vite.log"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  django_logs:
+  frontend_logs:
