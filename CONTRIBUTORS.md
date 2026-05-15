@@ -242,6 +242,9 @@ uv add package-name        # Production
 uv add --dev package-name  # Development
 ```
 
+## Check trello for daily tasks
+- https://trello.com/b/G0iEa7is/multigent
+
 ## Questions or Issues?
 
 - Check existing issues and discussions
