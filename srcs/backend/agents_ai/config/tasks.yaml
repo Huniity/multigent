@@ -1,5 +1,4 @@
-# srcs/backend/agents_ai/config/tasks.yaml
-# security_audit_task configuration
+
 security_audit_task:
   description: >
     Analyze the provided code context for the repository: {repo_url}.
@@ -20,6 +19,8 @@ security_audit_task:
     - A 'Security Health Score' from 0 to 100.
   agent: security_analyzer
   output_file: output/security_report.md
+
+
 performance_analysis_task:
   description: >
     Review the following code bundle from {repo_url}:
@@ -40,7 +41,8 @@ performance_analysis_task:
         - **Refactored Version**: A code block with the optimized version of the function.
   agent: performance_profiler
   output_file: output/performance_report.md
-# agents_ai/config/tasks.yaml
+
+
 final_report_task:
   description: >
     Read all markdown files in the /output folder (security_report.md, bug_report.md, etc.).
@@ -61,6 +63,8 @@ final_report_task:
     a clean document structure. No repetitive introductions from the sub-reports.
   agent: review_leader
   output_file: output/final_report.md
+
+
 bug_detection_task:
   description: >
     Review the following code bundle from {repo_url}:
@@ -85,3 +89,32 @@ def build_bug_task(repo_url, list_of_code_files):
         bundle += file['content']
     
     return bundle
+
+
+style_review_task:
+  description: >
+    Review the following code bundle from {repo_url}:
+
+    {code_bundle}
+    
+    Your style audit must focus on:
+    - **Naming Conventions:** Flag any camelCase/snake_case mixing, unclear
+      variable names (e.g., `x`, `tmp`, `data2`), or inconsistent casing.
+    - **Formatting:** Identify lines exceeding 79 characters (PEP8), missing
+      blank lines between functions/classes, or improper indentation.
+    - **Documentation:** Flag missing docstrings on public functions/classes,
+      absent inline comments on complex logic, or outdated comments.
+    - **Code Readability:** Detect deeply nested blocks (3+ levels), functions
+      longer than 50 lines, and magic numbers/strings without constants.
+    - **Dead Code:** Identify unused imports, unreachable code, or commented-out
+      code blocks left in production files.
+  expected_output: >
+    A markdown report 'style_report.md' containing:
+    - A summary table of style violations with Severity (High, Medium, Low).
+    - For each issue:
+        - Rule violated -> File -> Line number.
+        - **Before**: the original offending snippet.
+        - **After**: the corrected, clean version.
+    - A 'Style Health Score' from 0 to 100.
+  agent: style_reviewer
+  output_file: output/style_report.md
