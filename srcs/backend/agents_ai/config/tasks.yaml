@@ -1,3 +1,24 @@
+# agents_ai/config/tasks.yaml
+final_report_task:
+  description: >
+    Read all markdown files in the /output folder (security_report.md, bug_report.md, etc.).
+    Your goal is to consolidate them into a single 'final_report.md' using a 
+    standardized hierarchy.
+    
+    You MUST categorize the 'Technical Details' section into exactly these sub-sections:
+    1. **Security Vulnerabilities** (From Security Agent)
+    2. **Logic & Runtime Bugs** (From BugDetector Agent)
+    3. **Code Quality & Technical Debt** (General improvements)
+    4. **Performance & Optimization** (If applicable)
+
+    For each section, highlight the 'Criticality' of the findings. 
+    If a report file is missing for a category, simply state 'No issues detected in this category'.
+  expected_output: >
+    A unified markdown file 'final_report.md'. 
+    It must use ## for category headers and ### for specific issues to maintain 
+    a clean document structure. No repetitive introductions from the sub-reports.
+  agent: review_leader
+  output_file: output/final_report.md
 bug_detection_task:
   description: >
     Review the following code bundle from {repo_url}:
