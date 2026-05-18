@@ -1,0 +1,87 @@
+# srcs/backend/agents_ai/config/tasks.yaml
+# security_audit_task configuration
+security_audit_task:
+  description: >
+    Analyze the provided code context for the repository: {repo_url}.
+    
+    Your audit must focus on:
+    - **Secrets Detection:** Look for hardcoded passwords, API keys, or JWT secrets.
+    - **OWASP Top 10:** Identify risks like SQL Injection (raw queries), XSS, 
+      or Insecure Deserialization.
+    - **Insecure Patterns:** Detect the use of 'eval()', 'shell=True' in subprocesses, 
+      or weak hashing algorithms (MD5/SHA1).
+    - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned 
+      in requirements.txt or pyproject.toml.
+  expected_output: >
+    A detailed markdown security report. It must include:
+    - A summary table of found vulnerabilities with Severity (Critical, High, Medium, Low).
+    - Precise code snippets where the issues were found.
+    - Remediation advice for every identified risk.
+    - A 'Security Health Score' from 0 to 100.
+  agent: security_analyzer
+  output_file: output/security_report.md
+performance_analysis_task:
+  description: >
+    Review the following code bundle from {repo_url}:
+    
+    {code_bundle}
+    
+    Tasks:
+    1. Identify functions with high algorithmic complexity (e.g., O(n^2) or higher).
+    2. Spot blocking I/O operations inside loops.
+    3. Suggest where caching (memoization) or better data structures (sets/dicts instead of lists) could be used.
+  expected_output: >
+    A markdown report 'performance_report.md' containing:
+    - A summary of performance bottlenecks.
+    - For each issue:
+        - Function name -> Folder -> File -> Line number.
+        - Big O Analysis (Current vs. Target).
+        - Description of the bottleneck.
+        - **Refactored Version**: A code block with the optimized version of the function.
+  agent: performance_profiler
+  output_file: output/performance_report.md
+# agents_ai/config/tasks.yaml
+final_report_task:
+  description: >
+    Read all markdown files in the /output folder (security_report.md, bug_report.md, etc.).
+    Your goal is to consolidate them into a single 'final_report.md' using a 
+    standardized hierarchy.
+    
+    You MUST categorize the 'Technical Details' section into exactly these sub-sections:
+    1. **Security Vulnerabilities** (From Security Agent)
+    2. **Logic & Runtime Bugs** (From BugDetector Agent)
+    3. **Code Quality & Technical Debt** (General improvements)
+    4. **Performance & Optimization** (If applicable)
+
+    For each section, highlight the 'Criticality' of the findings. 
+    If a report file is missing for a category, simply state 'No issues detected in this category'.
+  expected_output: >
+    A unified markdown file 'final_report.md'. 
+    It must use ## for category headers and ### for specific issues to maintain 
+    a clean document structure. No repetitive introductions from the sub-reports.
+  agent: review_leader
+  output_file: output/final_report.md
+bug_detection_task:
+  description: >
+    Review the following code bundle from {repo_url}:
+    
+    CODE BUNDLE:
+    {code_bundle}
+    
+    Analyze the logic, identify potential bugs, and suggest fixes.
+  expected_output: >
+    A complete markdown report. It should include:
+    - A summary table of findings.
+    - Detailed sections for each bug (File, Line, Issue, Fix).
+    - A 'Code Quality' assessment.
+  agent: bug_detector
+  output_file: output/bug_report.md
+
+
+def build_bug_task(repo_url, list_of_code_files):
+    bundle = ""
+    for file in list_of_code_files:
+        bundle += f"\n--- FILE: {file['name']} ---\n"
+        bundle += file['content']
+    
+    return bundle

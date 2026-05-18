@@ -1,0 +1,31 @@
+FROM node:25-alpine AS frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend .
+RUN npm run build
+
+FROM python:3.14.4-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev gcc curl && rm -rf /var/lib/apt/lists/*
+
+RUN pip install uv
+
+COPY backend/requirements.txt .
+RUN uv pip install --system -r requirements.txt
+
+COPY backend .
+
+# Copy frontend build into staticfiles/dist so nginx can serve it
+COPY --from=frontend-builder /frontend/dist ./staticfiles/dist
+
+RUN mkdir -p /app/logs /app/staticfiles && chmod 777 /app/logs
+
+EXPOSE 8000
+
+# collectstatic runs at startup so the shared volume gets populated
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]
