@@ -1,3 +1,23 @@
+performance_analysis_task:
+  description: >
+    Review the following code bundle from {repo_url}:
+    
+    {code_bundle}
+    
+    Tasks:
+    1. Identify functions with high algorithmic complexity (e.g., O(n^2) or higher).
+    2. Spot blocking I/O operations inside loops.
+    3. Suggest where caching (memoization) or better data structures (sets/dicts instead of lists) could be used.
+  expected_output: >
+    A markdown report 'performance_report.md' containing:
+    - A summary of performance bottlenecks.
+    - For each issue:
+        - Function name -> Folder -> File -> Line number.
+        - Big O Analysis (Current vs. Target).
+        - Description of the bottleneck.
+        - **Refactored Version**: A code block with the optimized version of the function.
+  agent: performance_profiler
+  output_file: output/performance_report.md
 # agents_ai/config/tasks.yaml
 final_report_task:
   description: >
