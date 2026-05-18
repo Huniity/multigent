@@ -5,6 +5,7 @@ def run_analysis():
     inputs = {
         'repo_url': 'https://github.com/Huniity/multigent.git',
         'topic': 'Security Vulnerabilities and Secrets'
+        
     }
 
     print("--- Starting Security Analysis ---")
