@@ -19,3 +19,27 @@ final_report_task:
     a clean document structure. No repetitive introductions from the sub-reports.
   agent: review_leader
   output_file: output/final_report.md
+bug_detection_task:
+  description: >
+    Review the following code bundle from {repo_url}:
+    
+    CODE BUNDLE:
+    {code_bundle}
+    
+    Analyze the logic, identify potential bugs, and suggest fixes.
+  expected_output: >
+    A complete markdown report. It should include:
+    - A summary table of findings.
+    - Detailed sections for each bug (File, Line, Issue, Fix).
+    - A 'Code Quality' assessment.
+  agent: bug_detector
+  output_file: output/bug_report.md
+
+
+def build_bug_task(repo_url, list_of_code_files):
+    bundle = ""
+    for file in list_of_code_files:
+        bundle += f"\n--- FILE: {file['name']} ---\n"
+        bundle += file['content']
+    
+    return bundle
