@@ -1,3 +1,25 @@
+# srcs/backend/agents_ai/config/tasks.yaml
+# security_audit_task configuration
+security_audit_task:
+  description: >
+    Analyze the provided code context for the repository: {repo_url}.
+    
+    Your audit must focus on:
+    - **Secrets Detection:** Look for hardcoded passwords, API keys, or JWT secrets.
+    - **OWASP Top 10:** Identify risks like SQL Injection (raw queries), XSS, 
+      or Insecure Deserialization.
+    - **Insecure Patterns:** Detect the use of 'eval()', 'shell=True' in subprocesses, 
+      or weak hashing algorithms (MD5/SHA1).
+    - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned 
+      in requirements.txt or pyproject.toml.
+  expected_output: >
+    A detailed markdown security report. It must include:
+    - A summary table of found vulnerabilities with Severity (Critical, High, Medium, Low).
+    - Precise code snippets where the issues were found.
+    - Remediation advice for every identified risk.
+    - A 'Security Health Score' from 0 to 100.
+  agent: security_analyzer
+  output_file: output/security_report.md
 performance_analysis_task:
   description: >
     Review the following code bundle from {repo_url}:
