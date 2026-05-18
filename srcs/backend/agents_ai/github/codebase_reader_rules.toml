@@ -1,0 +1,84 @@
+
+
+max_chars_allowed_in_context = 300000
+
+dirs_to_ignore = [
+	"venv",
+	"__pycache__",
+	"node_modules",
+	"dist",
+	"build",
+	".git",
+	".github",
+	".vscode",
+	".idea",
+	"logs",
+	"tmp",
+	"temp",
+	"cache",
+	"caches",
+	"coverage",
+	"reports",
+	"artifacts",
+	"output",
+	"outputs",
+	"results",
+	"result",
+	"fixtures",
+	"media",
+	"static",
+	"assets",
+	"staticfiles",
+	".pytest_cache",
+	".mypy_cache",
+	".ruff_cache",
+	"migrations"
+]
+
+extensions_to_ignore = [
+	".log",
+	".tmp",
+	".temp",
+	".cache",
+	".caches",
+	".coverage",
+	".reports",
+	".artifacts",
+	".output",
+	".outputs",
+	".results",
+	".result",
+	".fixtures",
+	".media",
+	".static",
+	".assets",
+	".staticfiles",
+	".pyc",
+	".pyo",
+	".png",
+	".jpg",
+	".jpeg",
+	".gif",
+    ".svg",
+    ".ico",
+    ".woff",
+    ".ttf",
+    ".eot",
+    ".lock",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".min.js",
+    ".min.css",
+    ".map"
+]
+
+files_to_be_included = [
+	"README.md",
+	"LICENSE",
+	"CHANGELOG.md",
+	"CONTRIBUTING.md",
+	"requirements.txt",
+	"pyproject.toml"
+]
+
