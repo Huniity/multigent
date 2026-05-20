@@ -7,10 +7,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install uv
 
+<<<<<<< HEAD
 COPY srcs/backend/requirements.txt .
 RUN uv pip install --system -r requirements.txt
 
 COPY srcs/backend .
+=======
+COPY backend/requirements.txt .
+RUN uv pip install --system -r requirements.txt
+
+COPY backend .
+>>>>>>> fd6ff79 (feat(auth): add login and register pages)
 
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 

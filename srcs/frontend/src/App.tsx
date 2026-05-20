@@ -1,3 +1,4 @@
+<<<<<<< HEAD:srcs/frontend/src/App.tsx
 // import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from './assets/vite.svg'
@@ -125,6 +126,9 @@
 import { useState, useEffect } from "react";
 import './index.css'
 
+=======
+import { useState, useEffect } from "react";
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):src/App.jsx
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap');
@@ -491,12 +495,20 @@ const loadingSteps = [
   "Compiling the revised output…",
 ];
 
+<<<<<<< HEAD:srcs/frontend/src/App.tsx
 function getScoreClass(n: number) { return n >= 80 ? "high" : n >= 60 ? "mid" : "low"; }
+=======
+function getScoreClass(n) { return n >= 80 ? "high" : n >= 60 ? "mid" : "low"; }
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):src/App.jsx
 
 function Dot() {
   return <div style={{ width: 8, height: 8, background: "#aaef5a", borderRadius: "50%", flexShrink: 0 }} />;
 }
+<<<<<<< HEAD:srcs/frontend/src/App.tsx
 function Logo({ small }: { small?: boolean }) {
+=======
+function Logo({ small }) {
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):src/App.jsx
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
       <Dot />
@@ -511,14 +523,23 @@ export default function App() {
   const [screen,         setScreen]         = useState("auth");
   const [authMode,       setAuthMode]       = useState("login");
   const [activeNav,      setActiveNav]      = useState("dashboard");
+<<<<<<< HEAD:srcs/frontend/src/App.tsx
   const [selectedReview, setSelectedReview] = useState<typeof reviews[0] | null>(null);
+=======
+  const [selectedReview, setSelectedReview] = useState(null);
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):src/App.jsx
   const [detailTab,      setDetailTab]      = useState("code");
   const [isLoading,    setIsLoading]    = useState(false);
   const [loadingStep,  setLoadingStep]  = useState(0);
   const [msgVisible,   setMsgVisible]   = useState(true);
 
+<<<<<<< HEAD:srcs/frontend/src/App.tsx
   function goTo(nav: string) { setActiveNav(nav); setSelectedReview(null); }
   function openReview(r: typeof reviews[0]) { setSelectedReview(r); setDetailTab("code"); setActiveNav("dashboard"); }
+=======
+  function goTo(nav) { setActiveNav(nav); setSelectedReview(null); }
+  function openReview(r) { setSelectedReview(r); setDetailTab("code"); setActiveNav("dashboard"); }
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):src/App.jsx
 
   useEffect(() => {
     if (!isLoading) return;
