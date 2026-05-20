@@ -7,10 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install uv
 
-COPY backend/requirements.txt .
+COPY srcs/backend/requirements.txt .
 RUN uv pip install --system -r requirements.txt
 
-COPY backend .
+COPY srcs/backend .
 
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 

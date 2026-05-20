@@ -51,9 +51,9 @@ env: ## Create .env file if it doesn't exist
 
 start-dev: sync-dev ## Start dev workflow with strict database readiness check
 	@echo "Starting Docker containers in background..."
-	docker compose -f compose.dev.yaml up --build -d
+	docker compose -f compose.yaml up --build -d
 	@echo "Waiting for PostgreSQL and Django backend to be fully ready..."
-	@until docker compose -f compose.dev.yaml exec backend python manage.py check > /dev/null 2>&1; do \
+	@until docker compose -f compose.yaml exec backend python manage.py check > /dev/null 2>&1; do \
 		echo "Backend not ready yet... checking again in 2 seconds"; \
 		sleep 2; \
 	done
@@ -62,7 +62,7 @@ start-dev: sync-dev ## Start dev workflow with strict database readiness check
 	$(MAKE) migrate-dev
 	$(MAKE) superuser-dev
 	@echo "Setup complete! Attaching to container logs..."
-	docker compose -f compose.dev.yaml logs -f
+	docker compose -f compose.yaml logs -f
 
 sync-dev:
 	cd srcs/frontend && npm install && cd ../../ && cd srcs/backend && uv sync && cd ../../
