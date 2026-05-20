@@ -17,3 +17,4 @@ def load_config(config_path="codebase_read_rules.toml"):
         "extensions_to_ignore": set(config_data.get("extensions_to_ignore", [])),
         "files_to_be_included": set(config_data.get("files_to_be_included", []))
     }
+
