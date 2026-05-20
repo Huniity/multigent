@@ -31,7 +31,7 @@ services:
       DJANGO_SETTINGS_MODULE: core.settings
     env_file: .env
     volumes:
-      - ./backend:/app
+      - ./srcs/backend:/app
       - ./scripts:/scripts
       - django_logs:/app/logs
     ports:
@@ -44,7 +44,7 @@ services:
     image: node:25-alpine
     working_dir: /app
     volumes:
-      - ./frontend:/app
+      - ./srcs/frontend:/app
       - /app/node_modules
       - frontend_logs:/app/logs
     ports:

@@ -15,10 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install uv
 
-COPY backend/requirements.txt .
+COPY srcs/backend/requirements.txt .
 RUN uv pip install --system -r requirements.txt
 
-COPY backend .
+COPY srcs/backend .
 
 # Copy frontend build into staticfiles/dist so nginx can serve it
 COPY --from=frontend-builder /frontend/dist ./staticfiles/dist
