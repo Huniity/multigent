@@ -1,21 +1,24 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
-from crewai_tools import FileReadTool  
+from crewai_tools import FileReadTool
+import yaml
+from pathlib import Path
 
 @CrewBase
 class SecurityCrew():
-    """Crew responsável pela análise completa de código do DevMate"""
-    
-    agents_config = 'config/agents.yaml'
-    tasks_config = 'config/tasks.yaml'
+    agents: List[BaseAgent]
+    tasks: List[Task]
 
-    # --- AGENTES ---
+    agents_config = "config/agents.yaml"
+    tasks_config = "config/tasks.yaml"
+    
+    
 
     @agent
     def security_analyzer(self) -> Agent:
         return Agent(
             config=self.agents_config['security_analyzer'],
-            tools=[FileReadTool()], 
+            #tools=[FileReadTool()], 
             verbose=True,
             allow_delegation=False
         )
@@ -24,7 +27,7 @@ class SecurityCrew():
     def performance_profiler(self) -> Agent:
         return Agent(
             config=self.agents_config['performance_profiler'],
-            tools=[FileReadTool()],
+            #tools=[FileReadTool()],
             verbose=True,
             allow_delegation=False
         )
@@ -33,20 +36,36 @@ class SecurityCrew():
     def bug_detector(self) -> Agent:
         return Agent(
             config=self.agents_config['bug_detector'],
-            tools=[FileReadTool()],
+            #tools=[FileReadTool()],
+            verbose=True,
+            allow_delegation=False
+        )
+
+    @agent
+    def style_reviewer(self) -> Agent:
+        return Agent(
+            config=self.agents_config['style_reviewer'],
+            #tools=[FileReadTool()],
             verbose=True,
             allow_delegation=False
         )
 
     @agent
     def review_leader(self) -> Agent:
-        output_reader_tool = FileReadTool(root_dir='./output')
+        #output_reader_tool = FileReadTool(root_dir='./output')
         return Agent(
             config=self.agents_config['review_leader'],
-            tools=[output_reader_tool],
+            #tools=[output_reader_tool],
             verbose=True,
             allow_delegation=False
         )
+        
+    def build_bug_task(self, repo_url, list_of_code_files):
+        bundle = ""
+        for file in list_of_code_files:
+            bundle += f"\n--- FILE: {file.get('name', 'unknown')} ---\n"
+            bundle += file.get('content', '')
+        return bundle
 
 
     @task
@@ -69,6 +88,13 @@ class SecurityCrew():
         return Task(
             config=self.tasks_config['performance_analysis_task'],
             output_file='output/performance_report.md'
+        )
+
+    @task
+    def style_review_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['style_review_task'],
+            output_file='output/style_report.md'
         )
 
     @task

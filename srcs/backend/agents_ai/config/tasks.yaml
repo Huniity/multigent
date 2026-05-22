@@ -11,6 +11,10 @@ security_audit_task:
       or weak hashing algorithms (MD5/SHA1).
     - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned 
       in requirements.txt or pyproject.toml.
+    - **Configuration Issues:** Flag any hardcoded secrets in config files or 
+      unsafe default settings (e.g., DEBUG=True in Django).
+    - Focus only on the task provided. Do not suggest code that has been deleted or is not present in the provided code context.
+    - Avoid suggesting code that has been recently edited or deleted.
   expected_output: >
     A detailed markdown security report. It must include:
     - A summary table of found vulnerabilities with Severity (Critical, High, Medium, Low).
@@ -61,6 +65,12 @@ final_report_task:
     A unified markdown file 'final_report.md'. 
     It must use ## for category headers and ### for specific issues to maintain 
     a clean document structure. No repetitive introductions from the sub-reports.
+    Task instructions: calculate an overall score 0 to 100 using weighted formula (bugs -5 each max -20, 
+    security -10 each max -25, performance -3 each max -15, style -1 each max -10, tech debt -0.5 per TODO max -10, CVEs -5 each max -20).
+      The final report should start with an 'Executive Summary' that includes:
+    - Overall Health Score (0 to 100).
+    - A brief overview of the most critical issues.
+    - A prioritized list of remediation steps for developers.
   agent: review_leader
   output_file: output/final_report.md
 
@@ -81,14 +91,6 @@ bug_detection_task:
   agent: bug_detector
   output_file: output/bug_report.md
 
-
-def build_bug_task(repo_url, list_of_code_files):
-    bundle = ""
-    for file in list_of_code_files:
-        bundle += f"\n--- FILE: {file['name']} ---\n"
-        bundle += file['content']
-    
-    return bundle
 
 
 style_review_task:
