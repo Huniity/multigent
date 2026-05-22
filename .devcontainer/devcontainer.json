@@ -5,24 +5,15 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
-<<<<<<< HEAD
 	"runArgs": ["--privileged"],
 
-=======
->>>>>>> fd6ff79 (feat(auth): add login and register pages)
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
 			"version": "latest",
 			"enableNonRootDocker": "true",
-<<<<<<< HEAD
 			"moby": "false"
 		},
 		"ghcr.io/devcontainers/features/node:2.0.0": {},
-=======
-			"moby": "true"
-		},
-		"ghcr.io/devcontainers/features/node:1": {},
->>>>>>> fd6ff79 (feat(auth): add login and register pages)
 		"ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {}
 	},
 "forwardPorts": [8000, 5173, 5432, 8080, 80]
