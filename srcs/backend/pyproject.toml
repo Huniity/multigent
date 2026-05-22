@@ -8,7 +8,10 @@ dependencies = [
     "django>=6.0.5",
     "django-cors-headers>=4.9.0",
     "django-rest>=0.8.7",
+<<<<<<< HEAD:srcs/backend/pyproject.toml
     "radon>=6.0.1",
+=======
+>>>>>>> fd6ff79 (feat(auth): add login and register pages):backend/pyproject.toml
     "drf-spectacular>=0.29.0",
     "gunicorn>=26.0.0",
     "psycopg[binary]>=3.3.4",

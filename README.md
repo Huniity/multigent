@@ -1,5 +1,6 @@
 # multigent
 An AI Council ready to analyze your codebase
+<<<<<<< HEAD
 
 
 ```
@@ -47,3 +48,5 @@ User POSTs { "repo_url": "https://github.com/user/repo" }
 6. Temp clone deleted from server
 
 ```
+=======
+>>>>>>> fd6ff79 (feat(auth): add login and register pages)
