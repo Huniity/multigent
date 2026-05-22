@@ -31,11 +31,7 @@ services:
       DJANGO_SETTINGS_MODULE: core.settings
     env_file: .env
     volumes:
-<<<<<<< HEAD
       - ./srcs/backend:/app
-=======
-      - ./backend:/app
->>>>>>> fd6ff79 (feat(auth): add login and register pages)
       - ./scripts:/scripts
       - django_logs:/app/logs
     ports:
@@ -48,11 +44,7 @@ services:
     image: node:25-alpine
     working_dir: /app
     volumes:
-<<<<<<< HEAD
       - ./srcs/frontend:/app
-=======
-      - ./frontend:/app
->>>>>>> fd6ff79 (feat(auth): add login and register pages)
       - /app/node_modules
       - frontend_logs:/app/logs
     ports:

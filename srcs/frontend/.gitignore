@@ -8,8 +8,5 @@ wheels/
 
 # Virtual environments
 .venv
-<<<<<<< HEAD:srcs/frontend/.gitignore
 node_modules
 .vite
-=======
->>>>>>> fd6ff79 (feat(auth): add login and register pages):.gitignore
