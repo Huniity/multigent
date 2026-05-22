@@ -34,17 +34,13 @@ def build_context_from_file(files: list[dict]) -> dict:
 
 
 
-def build_context_from_pasted_code(pasted_code: list[str]) -> dict:
+def build_context_from_pasted_code(pasted_code: str) -> dict:
     """
     Function to build a context for the crew by reading pasted code from the user input
     """
 
-    code_bundle = ""
-    for code in pasted_code:
-        code_bundle += f"Content:\n{code}\n\n"
-
     return {
-        "code_bundle": code_bundle,
+        "code_bundle": pasted_code,
         "files_included": []
     }
 
