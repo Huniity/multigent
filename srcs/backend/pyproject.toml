@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "crewai[google-genai]>=1.6.1",
     "django>=6.0.5",
     "django-cors-headers>=4.9.0",
     "django-rest>=0.8.7",
@@ -12,7 +13,6 @@ dependencies = [
     "gunicorn>=26.0.0",
     "psycopg[binary]>=3.3.4",
     "python-dotenv>=1.2.2",
-    "crewai[google-genai,openai-genai,tools]>=1.6.1",
 ]
 
 [dependency-groups]
