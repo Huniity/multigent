@@ -4,26 +4,13 @@ import { useAuthStore } from '../store/authStore';
 
 // Constants
 const LOADING_MESSAGES = [
-  'Fetching repository contents…',
+  'Parsing your code structure…',
   'Our security agent is reviewing your code…',
   'Our performance agent is analysing efficiency…',
   'Our quality agent is checking maintainability…',
   'Agents are cross-referencing findings…',
   'Compiling the revised output…',
 ];
-
-// Validation
-function isValidGithubUrl(raw: string): boolean {
-  try {
-    const { hostname, pathname } = new URL(raw.trim());
-    const isGithub = hostname === 'github.com' || hostname === 'www.github.com';
-    // Require at least owner/repo in the path
-    const segments = pathname.split('/').filter(Boolean);
-    return isGithub && segments.length >= 2;
-  } catch {
-    return false;
-  }
-}
 
 // Loading screen
 function LoadingScreen({ step, visible }: { step: number; visible: boolean }) {
@@ -61,14 +48,14 @@ export default function Home() {
   const navigate = useNavigate();
   const accessToken = useAuthStore((s) => s.accessToken);
 
-  const [url, setUrl]             = useState('');
-  const [urlError, setUrlError]   = useState<string | null>(null);
-  const [apiError, setApiError]   = useState<string | null>(null);
-  const [loading, setLoading]     = useState(false);
-  const [step, setStep]           = useState(0);
-  const [msgVisible, setMsgVisible] = useState(true);
+  const [code, setCode]               = useState('');
+  const [codeError, setCodeError]     = useState<string | null>(null);
+  const [apiError, setApiError]       = useState<string | null>(null);
+  const [loading, setLoading]         = useState(false);
+  const [step, setStep]               = useState(0);
+  const [msgVisible, setMsgVisible]   = useState(true);
 
-  // Cycles loading messages: show for 1800 ms, fade out for 350 ms, advance
+  // Cycles loading messages: show for 1800ms, fade out for 350ms, advance
   useEffect(() => {
     if (!loading) return;
 
@@ -88,24 +75,17 @@ export default function Home() {
     return () => clearTimeout(showTimer);
   }, [loading, step]);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setUrl(e.target.value);
-    setUrlError(null);
+  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
+    setCode(e.target.value);
+    setCodeError(null);
     setApiError(null);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
-    // Client-side validation
-    if (!url.trim()) {
-      setUrlError('Repository URL is required.');
-      return;
-    }
-    if (!isValidGithubUrl(url)) {
-      setUrlError(
-        'Enter a valid GitHub repository URL (e.g. https://github.com/owner/repo).'
-      );
+    if (!code.trim()) {
+      setCodeError('Please paste your code before submitting.');
       return;
     }
 
@@ -121,10 +101,9 @@ export default function Home() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken ?? ''}`,
         },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ code: code.trim() }),
       });
 
-      // 202 Accepted — review is queued, response contains the review ID
       if (res.status === 202 || res.ok) {
         const data = await res.json() as { id: string };
         navigate(`/review/${data.id}`);
@@ -156,48 +135,47 @@ export default function Home() {
           className="text-4xl font-bold text-[#f0ede5] leading-tight mb-4"
           style={{ fontFamily: "'Syne', sans-serif" }}
         >
-          Submit a repository<br />for review.
+          Submit code<br />for review.
         </h1>
         <p className="text-sm text-[#787891] leading-relaxed mb-10">
-          Paste a GitHub repository URL. Multiple agents will audit the code
-          simultaneously and produce a unified revised output.
+          Paste a code snippet. Multiple agents will audit it simultaneously
+          and produce a unified revised output.
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
-          {/*API-level error*/}
+          {/* API-level error */}
           {apiError && (
             <div className="text-xs text-[#f87171] bg-[#2a1010] border border-[#f87171]/30 px-4 py-3">
               {apiError}
             </div>
           )}
 
-          {/*URL field*/}
+          {/* Code textarea */}
           <div className="space-y-2">
             <label
-              htmlFor="url"
+              htmlFor="code"
               className="block text-[9px] tracking-widest uppercase text-[#787891]"
             >
-              GitHub repository URL
+              Code snippet
             </label>
-            <input
-              id="url"
-              type="url"
-              name="url"
-              placeholder="https://github.com/owner/repository"
-              value={url}
+            <textarea
+              id="code"
+              name="code"
+              placeholder={"# Paste your code here…\n\ndef example():\n    pass"}
+              value={code}
               onChange={handleChange}
-              autoComplete="off"
               spellCheck={false}
+              rows={16}
               className={[
                 'w-full bg-[#101014] text-[#e2dfda] text-sm px-3.5 py-2.5 outline-none',
-                'placeholder:text-[#35333e] font-mono transition-colors border',
+                'placeholder:text-[#35333e] font-mono transition-colors border resize-y',
                 'focus:border-[#aaef5a]',
-                urlError ? 'border-[#f87171]' : 'border-[#20202a]',
+                codeError ? 'border-[#f87171]' : 'border-[#20202a]',
               ].join(' ')}
             />
-            {urlError && (
-              <span className="block text-[11px] text-[#f87171]">{urlError}</span>
+            {codeError && (
+              <span className="block text-[11px] text-[#f87171]">{codeError}</span>
             )}
           </div>
 
