@@ -13,6 +13,7 @@ dependencies = [
     "gunicorn>=26.0.0",
     "psycopg[binary]>=3.3.4",
     "python-dotenv>=1.2.2",
+    "crewai[google-genai,openai-genai,tools]>=1.6.1",
 ]
 
 [dependency-groups]

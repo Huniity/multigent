@@ -11,6 +11,10 @@ security_audit_task:
       or weak hashing algorithms (MD5/SHA1).
     - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned 
       in requirements.txt or pyproject.toml.
+    - **Configuration Issues:** Flag any hardcoded secrets in config files or 
+      unsafe default settings (e.g., DEBUG=True in Django).
+    - Focus only on the task provided. Do not suggest code that has been deleted or is not present in the provided code context.
+    - Avoid suggesting code that has been recently edited or deleted.
   expected_output: >
     A detailed markdown security report. It must include:
     - A summary table of found vulnerabilities with Severity (Critical, High, Medium, Low).

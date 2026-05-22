@@ -6,15 +6,19 @@ from pathlib import Path
 
 @CrewBase
 class SecurityCrew():
-    
+    agents: List[BaseAgent]
+    tasks: List[Task]
 
-    # --- AGENTES ---
+    agents_config = "config/agents.yaml"
+    tasks_config = "config/tasks.yaml"
+    
+    
 
     @agent
     def security_analyzer(self) -> Agent:
         return Agent(
             config=self.agents_config['security_analyzer'],
-            tools=[FileReadTool()], 
+            #tools=[FileReadTool()], 
             verbose=True,
             allow_delegation=False
         )
@@ -23,7 +27,7 @@ class SecurityCrew():
     def performance_profiler(self) -> Agent:
         return Agent(
             config=self.agents_config['performance_profiler'],
-            tools=[FileReadTool()],
+            #tools=[FileReadTool()],
             verbose=True,
             allow_delegation=False
         )
@@ -32,7 +36,7 @@ class SecurityCrew():
     def bug_detector(self) -> Agent:
         return Agent(
             config=self.agents_config['bug_detector'],
-            tools=[FileReadTool()],
+            #tools=[FileReadTool()],
             verbose=True,
             allow_delegation=False
         )
@@ -41,17 +45,17 @@ class SecurityCrew():
     def style_reviewer(self) -> Agent:
         return Agent(
             config=self.agents_config['style_reviewer'],
-            tools=[FileReadTool()],
+            #tools=[FileReadTool()],
             verbose=True,
             allow_delegation=False
         )
 
     @agent
     def review_leader(self) -> Agent:
-        output_reader_tool = FileReadTool(root_dir='./output')
+        #output_reader_tool = FileReadTool(root_dir='./output')
         return Agent(
             config=self.agents_config['review_leader'],
-            tools=[output_reader_tool],
+            #tools=[output_reader_tool],
             verbose=True,
             allow_delegation=False
         )
