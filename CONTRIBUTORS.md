@@ -1,6 +1,14 @@
-# Contributing to Multi-Agent
+# Contributing to Multigent
 
-We appreciate your interest in contributing! This guide outlines our development practices, code standards, and commit conventions.
+## Team
+
+| Contributor | Role | Responsibilities |
+|---|---|---|
+| Adrien | Project Lead · Django · Backend & Integration | Project direction, Django application architecture, REST API design, backend–frontend integration, deployment |
+| Diogo | AI · CrewAI · Flow | Agent design and configuration, CrewAI crew and flow orchestration, LLM integration, context builder, concurrency strategy |
+| Giulio | Frontend Design · Pages · Documentation | UI/UX design, React page implementation, auth flows, review interface, project documentation |
+
+---
 
 ## Setup
 
@@ -10,17 +18,31 @@ We appreciate your interest in contributing! This guide outlines our development
    cd multigent
    ```
 
-2. **Install dependencies**
+2. **Create the environment file**
+   ```bash
+   make env
+   ```
+   Edit `.env` to add your `GEMINI_API_KEY` before starting.
+
+3. **Start the development stack**
+   ```bash
+   make start-dev
+   ```
+   This builds all Docker services, waits for the database, runs migrations, and prompts for a superuser.
+
+4. **Install local tooling** *(for linting/type-checking outside Docker)*
    ```bash
    make prepare
    ```
-   This will set up Python 3.12, sync dependencies, and install pre-commit hooks.
+   Sets up Python 3.12, syncs dependencies via `uv`, and installs pre-commit hooks.
+
+---
 
 ## Commit Conventions
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages. This ensures clear, semantic versioning and automated changelog generation.
+We follow [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages.
 
-### Commit Message Format
+### Format
 
 ```
 <type>(<scope>): <subject>
@@ -32,21 +54,21 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/) for all c
 
 ### Types
 
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **refactor**: Code changes that neither fix bugs nor add features
-- **perf**: Code changes that improve performance
-- **test**: Adding or updating tests
-- **ci**: Changes to CI/CD configuration
-- **chore**: Other changes that don't modify src or test files (e.g., dependencies)
+| Type | When to use |
+|---|---|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code change that is neither a fix nor a feature |
+| `perf` | Performance improvement |
+| `test` | Adding or updating tests |
+| `ci` | CI/CD configuration changes |
+| `chore` | Dependency bumps or other housekeeping |
 
 ### Rules
 
-- Use imperative mood ("add feature" not "added feature")
-- Keep the subject line under 50 characters
-- Capitalize the first letter
-- Do not end the subject with a period
+- Use imperative mood: *"add feature"* not *"added feature"*
+- Subject line under 50 characters, capitalised, no trailing period
 - Separate subject from body with a blank line
 - Wrap body at 72 characters
 - Reference issues with `Closes #123` in the footer
@@ -54,202 +76,124 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/) for all c
 ### Examples
 
 ```
-feat(agents): add multi-agent chat interface
+feat(agents): run specialist agents concurrently via ThreadPoolExecutor
 
-Implements a new chat interface supporting concurrent agent execution
-with real-time streaming responses.
+Previously agents ran sequentially, taking 4× longer. Now security,
+bug, performance, and style agents fire in parallel and the review
+leader synthesises their outputs afterward.
 
-Closes #42
+Closes #14
 ```
 
 ```
-fix(api): resolve authentication timeout issue
+fix(auth): clear tokens on 401 refresh failure
 
-Previously, authentication tokens would expire during long-running
-requests. Now tokens are refreshed automatically.
+If the refresh token is expired or invalid, the silent refresh in
+authFetch now calls clearTokens() so ProtectedRoute redirects to
+/login instead of looping.
 
-Closes #99
+Closes #31
 ```
 
 ```
-docs: update installation instructions
+docs: add ARCHITECTURE.md
 ```
+
+---
 
 ## Pre-Commit Hooks
 
-Pre-commit hooks run automatically before each commit to ensure code quality. They are configured in `.pre-commit-config.yaml`.
+Pre-commit hooks run automatically before each commit. They are configured in `.pre-commit-config.yaml`.
 
-### Enabled Hooks
+| Hook | Purpose |
+|---|---|
+| `trailing-whitespace` | Removes trailing whitespace |
+| `end-of-file-fixer` | Ensures files end with a single newline |
+| `check-yaml` | Validates YAML syntax |
+| `check-added-large-files` | Blocks files over 500 KB |
+| `ruff-check` | Lints Python code |
+| `ruff-format` | Auto-formats Python code |
+| `mypy` | Static type checking |
 
-1. **trailing-whitespace**: Removes trailing whitespace from files
-2. **end-of-file-fixer**: Ensures files end with a single newline
-3. **check-yaml**: Validates YAML syntax
-4. **check-added-large-files**: Prevents committing large files (>500KB)
-5. **ruff-check**: Lints Python code for errors and style issues
-6. **ruff-format**: Automatically formats Python code
-7. **mypy**: Performs static type checking on Python code
-
-### Running Pre-Commit Checks
-
-Check all files:
+Run all hooks manually:
 ```bash
 make pre-commit-all
 ```
 
-Or run pre-commit on staged files:
-```bash
-pre-commit run
-```
+---
 
 ## Code Quality
 
-### Ruff Configuration
+### Python — Ruff
 
-We use [Ruff](https://docs.astral.sh/ruff/) for fast Python linting and formatting. The project uses **default Ruff settings** with no custom overrides.
-
-#### Default Enabled Rules
-
-Ruff's default selection includes:
-- **E/W (pycodestyle)**: PEP 8 style violations (indentation, whitespace, line length)
-- **F (Pyflakes)**: Variable binding errors, unused imports, undefined names
-- **I (isort)**: Import sorting and organization
-
-#### Default Ignored Rules
-
-- **Docstring rules (D)**: Not enabled by default
-- **Pylint rules**: Not enabled by default
-- **Type checking**: Not enabled by default (handled by mypy)
-
-#### Ruff Commands
-
-**Check for issues:**
 ```bash
-make check
-```
-or
-```bash
-uv run ruff check
+make check      # lint
+make format     # auto-format
+make fullCheck  # both
 ```
 
-**Auto-format code:**
-```bash
-make format
-```
-or
-```bash
-uv run ruff format
-```
+Default rules: **E/W** (pycodestyle), **F** (Pyflakes), **I** (isort).
 
-**Check and format:**
-```bash
-make fullCheck
-```
+### Python — mypy
 
-### Type Checking with mypy
-
-mypy performs static type checking. Ensure type hints are present in your code:
-
-```python
-def add_numbers(a: int, b: int) -> int:
-    return a + b
-```
-
-Type checking runs with pre-commit, but you can manually run:
 ```bash
 uv run mypy .
 ```
 
-## Editor Configuration
+Type hints are required on all public functions and class methods.
 
-The project uses [EditorConfig](https://editorconfig.org/) to maintain consistent code style across editors. Configuration is in `.editorconfig`.
+### TypeScript — ESLint
 
-### Current Settings
-
-```ini
-[*]
-indent_style = space
-indent_size = 4
-
-[*.py]
-indent_size = 2
-
-[package.json]
-indent_size = 1
+```bash
+cd srcs/frontend && npm run lint
 ```
 
-### What This Means
+---
 
-- **All files**: Use spaces (not tabs), 4-space indentation
-- **Python files (*.py)**: Use 2-space indentation
-- **package.json**: Use 1-space indentation
+## Editor Configuration
 
-### Editor Support
+`.editorconfig` enforces consistent style across editors.
 
-EditorConfig is supported by most editors. Install the plugin for your editor:
-- [VS Code](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
-- [JetBrains IDEs](https://plugins.jetbrains.com/plugin/7294-editorconfig)
-- [Vim](https://github.com/editorconfig/editorconfig-vim)
-- [Sublime Text](https://github.com/sindresorhus/editorconfig-sublime)
+| Scope | Setting |
+|---|---|
+| All files | Spaces, 4-space indent |
+| `*.py` | 2-space indent |
+| `package.json` | 1-space indent |
+
+Install the [EditorConfig extension](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) for VS Code.
+
+---
 
 ## Development Workflow
 
-### 1. Create a Feature Branch
-```bash
-git checkout -b feat/your-feature-name
+```
+1. git checkout -b feat/your-feature      # branch from dev
+2. # make changes
+3. make fullCheck                          # lint + format
+4. uv run mypy .                          # type check
+5. git add . && git commit -m "feat: …"  # pre-commit hooks run
+6. git push origin feat/your-feature
+7. Open a merge request into dev
 ```
 
-### 2. Make Your Changes
-Follow the Editor Configuration settings and write tests.
-
-### 3. Run Quality Checks
-```bash
-make fullCheck  # Runs ruff check and format
-uv run mypy .   # Type checking
-pytest          # Run tests
-```
-
-### 4. Commit Your Changes
-```bash
-git add .
-git commit -m "feat(scope): description"
-```
-
-Pre-commit hooks will automatically run. If they fail, fix issues and try again.
-
-### 5. Push and Create a Pull Request
-```bash
-git push origin feat/your-feature-name
-```
-
-## Python Version
-
-This project requires **Python 3.12 or later**. Make sure your environment uses the correct version:
-
-```bash
-python --version
-```
+---
 
 ## Dependencies
 
-Dependencies are managed with [uv](https://docs.astral.sh/uv/). See `pyproject.toml` for current dependencies:
+Managed with [uv](https://docs.astral.sh/uv/). See `srcs/backend/pyproject.toml`.
 
-- **Core**: Django 6.0.5+, django-rest 0.8.7+
-- **Dev**: pytest 9.0.3+, ruff 0.15.12+, typer 0.25.1+, mypy 1.20.2+
-
-Add dependencies with:
 ```bash
-uv add package-name        # Production
-uv add --dev package-name  # Development
+uv add package-name          # production
+uv add --dev package-name    # development
+make requirements            # regenerate requirements.txt
 ```
 
-## Check trello for daily tasks
-- https://trello.com/b/G0iEa7is/multigent
+---
 
 ## Questions or Issues?
 
-- Check existing issues and discussions
+- Check existing issues and discussions on the repository
 - Create a new issue for bugs or feature requests
-- For minor issues, feel free to submit a PR directly
+- For minor fixes, a PR directly is fine
 
-Thank you for contributing! 🎉
-#### This markdown file was created in collab with AI Agents.
+Thank you for contributing!
