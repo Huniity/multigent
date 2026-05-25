@@ -24,7 +24,7 @@ security_audit_task:
     - Remediation advice for every identified risk.
     - A 'Security Health Score' from 0 to 100.
     If no issues are found, state clearly that the code passed the security audit and give a score of 100.
-  Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: security_analyzer
   output_file: output/security_report.md
 
@@ -50,7 +50,7 @@ performance_analysis_task:
         - Description of the bottleneck.
         - **Refactored Version**: A code block with the optimized version of the function.
     If no performance issues are found, state clearly that no significant bottlenecks were detected.
-  Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: performance_profiler
   output_file: output/performance_report.md
 
@@ -78,7 +78,7 @@ final_report_task:
     - Overall Health Score (0 to 100).
     - A brief overview of the most critical issues.
     - A prioritized list of remediation steps for developers.
-  Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: review_leader
   output_file: output/final_report.md
 
@@ -99,7 +99,7 @@ bug_detection_task:
     - Detailed sections for each bug (File, Line, Issue, Fix).
     - A 'Code Quality' assessment.
     If no bugs are found, state clearly that the code passed the bug detection audit.
-  Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: bug_detector
   output_file: output/bug_report.md
 
@@ -133,6 +133,6 @@ style_review_task:
         - **After**: the corrected, clean version.
     - A 'Style Health Score' from 0 to 100.
     If no style issues are found, state clearly that the code passed the style audit and give a score of 100.
-  Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: style_reviewer
   output_file: output/style_report.md
