@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { authFetch } from '../utils/authFetch';
 
 // Types
-type ReviewStatus = 'pending' | 'complete' | 'failed';
-
-interface AgentReport {
-  name: string;
-  blurb: string;
+interface ReviewResult {
+  bug_report:         string | null
+  security_report:    string | null
+  style_report:       string | null
+  performance_report: string | null
+  final_report:       string | null
+  overall_score:      number | null
 }
 
 interface Review {
-  id: string;
-  status: ReviewStatus;
-  created_at: string;
-  revised_code?: string;
-  agents?: AgentReport[];
-  readme?: string;
+  id:           string
+  source:       string
+  label:        string
+  score:        number | null
+  created_at:   string
+  completed_at: string | null
+  result:       ReviewResult | null
 }
 
 // Sub-components
@@ -89,146 +92,69 @@ function PendingState({ onRefresh }: { onRefresh: () => void }) {
   );
 }
 
-/**Shown when status === 'failed'*/
-function FailedState() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-[#08080a] text-center px-6">
-      <div className="w-2 h-2 rounded-full bg-[#f87171] mb-8" />
-      <h2
-        className="text-2xl font-bold text-[#f0ede5] mb-3"
-        style={{ fontFamily: "'Syne', sans-serif" }}
-      >
-        Review failed.
-      </h2>
-      <p className="text-sm text-[#787891] mb-8 max-w-sm leading-relaxed">
-        One or more agents were unreachable or encountered an error while
-        processing your submission. Please try submitting again.
-      </p>
-      <Link
-        to="/"
-        className="bg-[#aaef5a] text-[#081400] text-xs font-medium tracking-widest uppercase py-3 px-7 hover:opacity-85 transition-opacity"
-      >
-        ← Submit again
-      </Link>
-    </div>
-  );
-}
-
-/**Shown when status === 'complete'*/
+/**Shown when result exists*/
 function CompleteState({ review }: { review: Review }) {
-  const [tab, setTab] = useState<'code' | 'readme'>('code');
+  const result = review.result!
+  const reports = [
+    { label: 'Final Report',       content: result.final_report        },
+    { label: 'Security',           content: result.security_report     },
+    { label: 'Bugs',               content: result.bug_report          },
+    { label: 'Performance',        content: result.performance_report  },
+    { label: 'Style',              content: result.style_report        },
+  ]
+  const [tab, setTab] = useState(0)
 
   return (
     <div className="flex flex-col flex-1 bg-[#08080a] text-left">
-      {/*Header*/}
+      {/* Header */}
       <div className="border-b border-[#18181e] px-10 py-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Logo />
           <span className="text-[#28282e]">/</span>
-          <span className="text-xs text-[#787891] tracking-widest uppercase">
-            Review {review.id}
-          </span>
+          <span className="text-xs text-[#787891] tracking-widest uppercase">Review {review.id}</span>
         </div>
-        <Link
-          to="/"
-          className="text-xs text-[#787891] hover:text-[#aaef5a] transition-colors"
-        >
-          ← New review
-        </Link>
+        <div className="flex items-center gap-6">
+          {result.overall_score !== null && (
+            <span className="text-xs text-[#787891]">
+              Score:{' '}
+              <span style={{ color: result.overall_score >= 80 ? '#aaef5a' : result.overall_score >= 60 ? '#f8c354' : '#f87171' }}
+                className="font-bold">
+                {result.overall_score}/100
+              </span>
+            </span>
+          )}
+          <Link to="/" className="text-xs text-[#787891] hover:text-[#aaef5a] transition-colors">← Dashboard</Link>
+        </div>
       </div>
 
-      {/*Tabs*/}
+      {/* Tabs */}
       <div className="flex border-b border-[#18181e] px-10 gap-1">
-        {([
-          { id: 'code',   label: 'Revised code'  },
-          { id: 'readme', label: 'Agent README'   },
-        ] as const).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+        {reports.map((r, i) => (
+          <button key={i} onClick={() => setTab(i)}
             className={[
               'py-3 px-5 text-xs tracking-widest border-b-2 transition-colors cursor-pointer bg-transparent',
-              tab === t.id
-                ? 'text-[#aaef5a] border-[#aaef5a]'
-                : 'text-[#787891] border-transparent hover:text-[#a0a0b0]',
-            ].join(' ')}
-          >
-            {t.label}
+              tab === i ? 'text-[#aaef5a] border-[#aaef5a]' : 'text-[#787891] border-transparent hover:text-[#a0a0b0]',
+            ].join(' ')}>
+            {r.label}
           </button>
         ))}
       </div>
 
-      {/*Content*/}
+      {/* Content */}
       <div className="flex-1 overflow-y-auto px-10 py-8">
-
-        {/*Revised code tab*/}
-        {tab === 'code' && (
-          <div>
-            <p className="text-[9px] tracking-widest uppercase text-[#787891] mb-4">
-              Final output — revised by {review.agents?.length ?? 0} agents
-            </p>
-            <pre
-              className="bg-[#060608] border border-[#18181e] p-5 text-xs text-[#90d860] font-mono leading-relaxed overflow-x-auto whitespace-pre text-left"
-            >
-              {review.revised_code}
-            </pre>
-          </div>
-        )}
-
-        {/*Agent README tab*/}
-        {tab === 'readme' && (
-          <div className="max-w-2xl">
-            {/* Per-agent blurbs */}
-            {review.agents && review.agents.length > 0 && (
-              <div className="mb-10">
-                <p className="text-[9px] tracking-widest uppercase text-[#787891] mb-6">
-                  Agent reports
-                </p>
-                {review.agents.map((agent, i) => (
-                  <div
-                    key={i}
-                    className="border border-[#18181e] bg-[#0d0d11] px-6 py-5 mb-4"
-                  >
-                    <p
-                      className="text-sm font-bold text-[#c0bcb5] mb-3"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      {agent.name}
-                    </p>
-                    <p className="text-xs text-[#787891] leading-relaxed text-left">
-                      {agent.blurb}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/*Collective README*/}
-            {review.readme && (
-              <div>
-                <p className="text-[9px] tracking-widest uppercase text-[#787891] mb-4">
-                  Collective README
-                </p>
-                <pre
-                  className="bg-[#060608] border border-[#18181e] p-5 text-xs text-[#e2dfda] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap text-left"
-                >
-                  {review.readme}
-                </pre>
-              </div>
-            )}
-          </div>
-        )}
-
+        <pre className="bg-[#060608] border border-[#18181e] p-5 text-xs text-[#e2dfda] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap text-left">
+          {reports[tab].content || 'No output for this report.'}
+        </pre>
       </div>
     </div>
-  );
+  )
 }
+
 
 // Main component
 export default function Review() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const accessToken = useAuthStore((s) => s.accessToken);
 
   const [review, setReview]   = useState<Review | null>(null);
   const [fetching, setFetching] = useState(true);
@@ -241,9 +167,7 @@ export default function Review() {
     setFetchError(null);
 
     try {
-      const res = await fetch(`/api/v1/reviews/${id}/`, {
-        headers: { Authorization: `Bearer ${accessToken ?? ''}` },
-      });
+      const res = await authFetch(`/api/reviews/${id}/`);
 
       if (!res.ok) {
         const err = await res.json() as { detail?: string };
@@ -276,7 +200,6 @@ export default function Review() {
 
   if (!review) return null;
 
-  if (review.status === 'pending') return <PendingState onRefresh={fetchReview} />;
-  if (review.status === 'failed')  return <FailedState />;
+  if (review.result === null) return <PendingState onRefresh={fetchReview} />;
   return <CompleteState review={review} />;
 }

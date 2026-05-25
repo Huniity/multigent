@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { authFetch } from '../utils/authFetch';
 
 // Constants
 const LOADING_MESSAGES = [
@@ -46,14 +46,13 @@ function LoadingScreen({ step, visible }: { step: number; visible: boolean }) {
 // Main component
 export default function Home() {
   const navigate = useNavigate();
-  const accessToken = useAuthStore((s) => s.accessToken);
 
-  const [code, setCode]               = useState('');
-  const [codeError, setCodeError]     = useState<string | null>(null);
-  const [apiError, setApiError]       = useState<string | null>(null);
-  const [loading, setLoading]         = useState(false);
-  const [step, setStep]               = useState(0);
-  const [msgVisible, setMsgVisible]   = useState(true);
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const [msgVisible, setMsgVisible] = useState(true);
 
   // Cycles loading messages: show for 1800ms, fade out for 350ms, advance
   useEffect(() => {
@@ -81,6 +80,16 @@ export default function Home() {
     setApiError(null);
   }
 
+  async function pollUntilComplete(id: string): Promise<void> {
+    while (true) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const res = await authFetch(`/api/reviews/${id}/`);
+      if (!res.ok) return;
+      const data = await res.json() as { result: object | null };
+      if (data.result !== null) return;
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
@@ -95,23 +104,21 @@ export default function Home() {
     setApiError(null);
 
     try {
-      const res = await fetch('/api/v1/reviews/', {
+      const res = await authFetch('/api/reviews/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken ?? ''}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code.trim() }),
       });
 
-      if (res.status === 202 || res.ok) {
-        const data = await res.json() as { id: string };
-        navigate(`/review/${data.id}`);
+      if (!res.ok) {
+        const err = await res.json() as { detail?: string };
+        setApiError(err.detail ?? 'Something went wrong. Please try again.');
         return;
       }
 
-      const err = await res.json() as { detail?: string };
-      setApiError(err.detail ?? 'Something went wrong. Please try again.');
+      const data = await res.json() as { id: string };
+      await pollUntilComplete(data.id);
+      navigate(`/review/${data.id}`);
     } catch {
       setApiError('Unable to connect to the server. Please try again.');
     } finally {
@@ -122,6 +129,8 @@ export default function Home() {
   if (loading) {
     return <LoadingScreen step={step} visible={msgVisible} />;
   }
+
+
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-[#08080a] p-8 text-left">
