@@ -1,5 +1,9 @@
+import re
+
 from pathlib import Path
 from typing import List
+
+from concurrent.futures import ThreadPoolExecutor
 
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
@@ -113,22 +117,50 @@ class SecurityCrew():
     
 
     def _read_output(self, filename: str) -> str:
-        path = Path(__file__).parent / filename
+        path = Path(__file__).parent.parent / filename
+
         if path.exists():
             return path.read_text(encoding='utf-8')
         return ''
+
+    def _parse_score(self, final_report: str) -> int | None:
+        match = re.search(r'(?:Overall Health Score|Health Score)[^\d]*(\d{1,3})', final_report)
+        if match:
+            return int(match.group(1))
+        return None
+
+    def _run_crew(self, agent, task, inputs: dict):
+    Crew(
+        agents=[agent],
+        tasks=[task],
+        process=Process.sequential,
+        verbose=True,
+    ).kickoff(inputs=inputs)
 
     def run(self, bundle: dict) -> dict:
         inputs = {
             'code_bundle': bundle['code_bundle'],
             'repo_url': ', '.join(bundle['files_included']) or 'pasted snippet',
         }
-        self.crew().kickoff(inputs=inputs)
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [
+                executor.submit(self._run_crew, self.security_analyzer(),    self.security_audit_task(),       inputs),
+                executor.submit(self._run_crew, self.bug_detector(),         self.bug_detection_task(),        inputs),
+                executor.submit(self._run_crew, self.performance_profiler(), self.performance_analysis_task(), inputs),
+                executor.submit(self._run_crew, self.style_reviewer(),       self.style_review_task(),         inputs),
+            ]
+            for f in futures:
+                f.result()
+
+        self._run_crew(self.review_leader(), self.final_report_task(), inputs)
+
         return {
-            'bug_report':         self._read_output('output/bug_report.md'),
-            'security_report':    self._read_output('output/security_report.md'),
-            'style_report':       self._read_output('output/style_report.md'),
+            'bug_report': self._read_output('output/bug_report.md'),
+            'security_report': self._read_output('output/security_report.md'),
+            'style_report': self._read_output('output/style_report.md'),
             'performance_report': self._read_output('output/performance_report.md'),
-            'final_report':       self._read_output('output/final_report.md'),
-            'overall_score':      None,
+            'final_report': self._read_output('output/final_report.md'),
+            'overall_score': self._parse_score(self._read_output('output/final_report.md')),
+
         }
