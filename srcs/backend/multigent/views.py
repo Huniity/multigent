@@ -101,25 +101,6 @@ class ReviewDetailView(APIView):
         return Response(ReviewSerializer(review).data)
 
 
-class ReviewDeleteView(APIView):
-    """
-    API view to delete a specific review. Requires authentication and ownership of the review.
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request, pk):
-        """
-        Handle DELETE requests to remove a specific review. Validates that the review exists and belongs to the authenticated user before deletion.
-        """
-        try:
-            review = Review.objects.get(pk=pk, user=request.user)
-        except Review.DoesNotExist:
-            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        review.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 def _run_crew_sync(review_id: int, bundle: dict):
     """
     Internal function to run the security crew analysis asynchronously.
