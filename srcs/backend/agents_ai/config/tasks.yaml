@@ -2,21 +2,29 @@
 security_audit_task:
   description: >
     Analyze the provided code context for the repository: {repo_url}.
-    
+
     Your audit must focus on:
     - **Secrets Detection:** Look for hardcoded passwords, API keys, or JWT secrets.
-    - **OWASP Top 10:** Identify risks like SQL Injection (raw queries), XSS, 
+    - **OWASP Top 10:** Identify risks like SQL Injection (raw queries), XSS,
       or Insecure Deserialization.
-    - **Insecure Patterns:** Detect the use of 'eval()', 'shell=True' in subprocesses, 
+    - **Insecure Patterns:** Detect the use of 'eval()', 'shell=True' in subprocesses,
       or weak hashing algorithms (MD5/SHA1).
-    - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned 
+    - **Dependency Risks:** Point out outdated or vulnerable libraries mentioned
       in requirements.txt or pyproject.toml.
+    - **Configuration Issues:** Flag any hardcoded secrets in config files or
+      unsafe default settings (e.g., DEBUG=True in Django).
+    - Focus only on the task provided. Do not suggest code that has been deleted or is not present in the provided code context.
+    - Avoid suggesting code that has been recently edited or deleted.
+    - If no security issues are found, return a brief report stating that no vulnerabilities were detected
+      rather than inventing issues. An empty or clean report is a valid and expected result.
   expected_output: >
     A detailed markdown security report. It must include:
     - A summary table of found vulnerabilities with Severity (Critical, High, Medium, Low).
     - Precise code snippets where the issues were found.
     - Remediation advice for every identified risk.
     - A 'Security Health Score' from 0 to 100.
+    If no issues are found, state clearly that the code passed the security audit and give a score of 100.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: security_analyzer
   output_file: output/security_report.md
 
@@ -24,21 +32,25 @@ security_audit_task:
 performance_analysis_task:
   description: >
     Review the following code bundle from {repo_url}:
-    
+
     {code_bundle}
-    
+
     Tasks:
     1. Identify functions with high algorithmic complexity (e.g., O(n^2) or higher).
     2. Spot blocking I/O operations inside loops.
     3. Suggest where caching (memoization) or better data structures (sets/dicts instead of lists) could be used.
+    - If the code is too simple to have meaningful performance concerns (e.g. a single function or config file),
+      return a brief report stating that no significant bottlenecks were found. A clean report is a valid result.
   expected_output: >
-    A markdown report 'performance_report.md' containing:
+    A markdown report containing:
     - A summary of performance bottlenecks.
     - For each issue:
         - Function name -> Folder -> File -> Line number.
         - Big O Analysis (Current vs. Target).
         - Description of the bottleneck.
         - **Refactored Version**: A code block with the optimized version of the function.
+    If no performance issues are found, state clearly that no significant bottlenecks were detected.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: performance_profiler
   output_file: output/performance_report.md
 
@@ -46,21 +58,27 @@ performance_analysis_task:
 final_report_task:
   description: >
     Read all markdown files in the /output folder (security_report.md, bug_report.md, etc.).
-    Your goal is to consolidate them into a single 'final_report.md' using a 
-    standardized hierarchy.
-    
+    Your goal is to consolidate them into a single final report using a standardized hierarchy.
+
     You MUST categorize the 'Technical Details' section into exactly these sub-sections:
     1. **Security Vulnerabilities** (From Security Agent)
     2. **Logic & Runtime Bugs** (From BugDetector Agent)
     3. **Code Quality & Technical Debt** (General improvements)
     4. **Performance & Optimization** (If applicable)
 
-    For each section, highlight the 'Criticality' of the findings. 
-    If a report file is missing for a category, simply state 'No issues detected in this category'.
+    For each section, highlight the 'Criticality' of the findings.
+    If a report file is missing or reported no issues for a category, state 'No issues detected in this category'.
   expected_output: >
-    A unified markdown file 'final_report.md'. 
-    It must use ## for category headers and ### for specific issues to maintain 
+    A unified markdown report.
+    It must use ## for category headers and ### for specific issues to maintain
     a clean document structure. No repetitive introductions from the sub-reports.
+    Task instructions: calculate an overall score 0 to 100 using weighted formula (bugs -5 each max -20,
+    security -10 each max -25, performance -3 each max -15, style -1 each max -10, tech debt -0.5 per TODO max -10, CVEs -5 each max -20).
+    The final report should start with an 'Executive Summary' that includes:
+    - Overall Health Score (0 to 100).
+    - A brief overview of the most critical issues.
+    - A prioritized list of remediation steps for developers.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: review_leader
   output_file: output/final_report.md
 
@@ -68,27 +86,22 @@ final_report_task:
 bug_detection_task:
   description: >
     Review the following code bundle from {repo_url}:
-    
+
     CODE BUNDLE:
     {code_bundle}
-    
+
     Analyze the logic, identify potential bugs, and suggest fixes.
+    If the code has no apparent bugs or is too minimal to analyse meaningfully,
+    return a brief report stating that no bugs were found. A clean report is a valid result.
   expected_output: >
     A complete markdown report. It should include:
     - A summary table of findings.
     - Detailed sections for each bug (File, Line, Issue, Fix).
     - A 'Code Quality' assessment.
+    If no bugs are found, state clearly that the code passed the bug detection audit.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: bug_detector
   output_file: output/bug_report.md
-
-
-def build_bug_task(repo_url, list_of_code_files):
-    bundle = ""
-    for file in list_of_code_files:
-        bundle += f"\n--- FILE: {file['name']} ---\n"
-        bundle += file['content']
-    
-    return bundle
 
 
 style_review_task:
@@ -96,7 +109,7 @@ style_review_task:
     Review the following code bundle from {repo_url}:
 
     {code_bundle}
-    
+
     Your style audit must focus on:
     - **Naming Conventions:** Flag any camelCase/snake_case mixing, unclear
       variable names (e.g., `x`, `tmp`, `data2`), or inconsistent casing.
@@ -108,13 +121,18 @@ style_review_task:
       longer than 50 lines, and magic numbers/strings without constants.
     - **Dead Code:** Identify unused imports, unreachable code, or commented-out
       code blocks left in production files.
+    - If the code snippet is too short or does not contain enough structure to
+      review meaningfully (e.g. a single expression or config snippet), return a brief
+      report stating that no style issues were found. A clean report is a valid result.
   expected_output: >
-    A markdown report 'style_report.md' containing:
+    A markdown report containing:
     - A summary table of style violations with Severity (High, Medium, Low).
     - For each issue:
         - Rule violated -> File -> Line number.
         - **Before**: the original offending snippet.
         - **After**: the corrected, clean version.
     - A 'Style Health Score' from 0 to 100.
+    If no style issues are found, state clearly that the code passed the style audit and give a score of 100.
+    Important: Output raw markdown directly. Do NOT wrap your response in a markdown code fence or code block.
   agent: style_reviewer
   output_file: output/style_report.md

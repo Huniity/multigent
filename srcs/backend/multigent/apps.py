@@ -2,4 +2,8 @@ from django.apps import AppConfig
 
 
 class MultigentConfig(AppConfig):
-    name = 'multigent'
+    """
+    Configuration class for the Multigent app, defining the app name and any necessary setup.
+    """
+
+    name = "multigent"

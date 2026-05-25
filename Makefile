@@ -1,7 +1,7 @@
-.PHONY: help up-dev up-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test
+.PHONY: help up up-dev up-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test test
 
 requirements: ## Generate requirements.txt from pyproject.toml
-	uv pip compile pyproject.toml -o requirements.txt
+	uv pip compile ./srcs/backend/pyproject.toml -o ./srcs/backend/requirements.txt
 
 prepare: ## Prepare the development environment by creating a virtual environment, installing Python 3.12, and syncing dependencies
 	rm -rf .venv
@@ -36,6 +36,8 @@ env: ## Create .env file if it doesn't exist
 		printf "ALLOWED_HOSTS=localhost,127.0.0.1,backend, *\n" >> .env; \
 		printf "DJANGO_SETTINGS_MODULE=core.settings\n" >> .env; \
 		printf "SECRET_KEY=django-insecure-n@yjki0(^_d89!g@0u8t77ao-q&=l#m!^-98kaz@#*hud5j62*\n" >> .env; \
+		printf "GEMINI_API_KEY=\n" >> .env; \
+		printf "MODEL=gemini-2.5-flash\n" >> .env; \
 		printf "\n" >> .env; \
 		printf "# Production settings\n" >> .env; \
 		printf "\n" >> .env; \
@@ -47,9 +49,9 @@ env: ## Create .env file if it doesn't exist
 	@echo "Environment variables:"
 	@cat .env
 
-	
 
-start-dev: sync-dev ## Start dev workflow with strict database readiness check
+
+start-dev: ## Start dev workflow with strict database readiness check
 	@echo "Starting Docker containers in background..."
 	docker compose -f compose.yaml up --build -d
 	@echo "Waiting for PostgreSQL and Django backend to be fully ready..."
@@ -67,8 +69,11 @@ start-dev: sync-dev ## Start dev workflow with strict database readiness check
 sync-dev:
 	cd srcs/frontend && npm install && cd ../../ && cd srcs/backend && uv sync && cd ../../
 
+up: ## Start production environment on port 80 (alias for up-prod)
+	docker compose -f compose.prod.yaml up --build
+
 up-dev: ## Start development environment
-	docker compose -f compose.yaml up --build
+	docker compose -f compose.yaml up
 	$(MAKE) migrate-dev
 
 up-prod: ## Start production environment
@@ -81,7 +86,7 @@ clean: ## Stop and remove all containers, volumes, and orphans
 migrate-dev: ## Run database migrations in development environment
 	docker compose -f compose.yaml exec backend python manage.py migrate
 
-migrate-prod: ## Run database migrations in production environment	
+migrate-prod: ## Run database migrations in production environment
 	docker compose -f compose.prod.yaml exec backend python manage.py migrate
 
 migration-dev: ## Create new database migrations in development environment
@@ -103,13 +108,17 @@ check-prod: ## Check for any issues in production environment
 	docker compose -f compose.prod.yaml exec backend python manage.py check
 
 backend-test-dev: ## Run backend tests in development environment
-	docker compose -f compose.yaml exec backend pytest
+	docker compose -f compose.yaml exec backend uv run pytest
 
 backend-test-prod: ## Run backend tests in production environment
-	docker compose -f compose.prod.yaml exec backend pytest
+	docker compose -f compose.prod.yaml exec backend uv run pytest
 
 frontend-test: ## Run frontend tests
 	cd srcs/frontend && npm run test
+
+test: ## Run backend and frontend test suites sequentially
+	$(MAKE) backend-test-dev
+	$(MAKE) frontend-test
 
 logs-backend-dev: ## Backend logs in development environment
 	docker compose -f compose.yaml exec backend tail -f /app/logs/django.log
