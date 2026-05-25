@@ -7,10 +7,8 @@ import type { LoginForm, FieldErrors } from '../types/auth';
 function validate(form: LoginForm): FieldErrors<LoginForm> {
   const errors: FieldErrors<LoginForm> = {};
 
-  if (!form.email.trim()) {
-    errors.email = 'Email is required.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Enter a valid email address.';
+  if (!form.username.trim()) {
+    errors.username = 'Username is required.';
   }
 
   if (!form.password) {
@@ -27,7 +25,7 @@ export default function Login() {
   const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
 
-  const [form, setForm] = useState<LoginForm>({ email: '', password: '' });
+  const [form, setForm] = useState<LoginForm>({ username: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<LoginForm>>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +56,7 @@ export default function Login() {
       const res = await fetch('/api/auth/token/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ username: form.username, password: form.password }),
       });
 
       const data = await res.json();
@@ -72,9 +70,9 @@ export default function Login() {
         } else {
           // Map field-level errors returned by the API
           const mapped: FieldErrors<LoginForm> = {};
-          if (data.email) mapped.email = (data.email as string[])[0];
-          if (data.password) mapped.password = (data.password as string[])[0];
-          setFieldErrors(mapped);
+            if (data.username) mapped.username = (data.username as string[])[0];
+            if (data.password) mapped.password = (data.password as string[])[0];
+            setFieldErrors(mapped);
         }
         return;
       }
@@ -132,15 +130,15 @@ export default function Login() {
           )}
 
           <Field
-            id="email"
-            label="Email"
-            type="email"
-            name="email"
-            placeholder="example@email.com"
-            value={form.email}
+            id="username"
+            label="Username"
+            type="text"
+            name="username"
+            placeholder="User123"
+            value={form.username}
             onChange={handleChange}
-            error={fieldErrors.email}
-            autoComplete="email"
+            error={fieldErrors.username}
+            autoComplete="username"
           />
 
           <Field
