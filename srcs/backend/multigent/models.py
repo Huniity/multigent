@@ -27,7 +27,7 @@ class Review(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
 	source = models.CharField(max_length=20, choices=SOURCE_CHOICES)
 	label = models.CharField(max_length=20, choices=LABEL_CHOICES)
-	score = models.IntegerField()
+	score = models.IntegerField(null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	completed_at = models.DateTimeField(null=True, blank=True)
 
@@ -49,12 +49,12 @@ class ReviewResult(models.Model):
 	Model representing the results of a code review, linked to a specific Review instance.
 	"""
 	review = models.OneToOneField(Review, on_delete=models.CASCADE, related_name="result")
-	bug_report = models.TextField()
-	security_report = models.TextField()
-	style_report = models.TextField()
-	performance_report = models.TextField()
-	final_report = models.TextField()
-	overall_score = models.IntegerField()
+	bug_report = models.TextField(null=True, blank=True)
+	security_report = models.TextField(null=True, blank=True)
+	style_report = models.TextField(null=True, blank=True)
+	performance_report = models.TextField(null=True, blank=True)
+	final_report = models.TextField(null=True, blank=True)
+	overall_score = models.IntegerField(null=True, blank=True)
 
 	def __str__(self):
 		"""
