@@ -143,7 +143,16 @@ make backend-test-dev       # runs pytest inside the development container
 make backend-test-prod      # runs pytest inside the production container
 ```
 
-Pytest discovers tests in `srcs/backend/**/tests.py`. Logs are written to `/app/logs/pytest.log` inside the container and can be read with `make logs-pytest-dev`.
+The active test suite covers the context builder module
+(`srcs/backend/agents_ai/github/test_context_builder.py`), with six
+pytest cases validating both `build_context_from_file` and
+`build_context_from_pasted_code` — including empty input handling,
+correct bundle construction, and accurate `files_included` output.
+
+Django test stubs exist in `agents_ai/tests.py` and
+`multigent/tests.py` for future expansion of model and view coverage.
+Logs from each run are written to `/app/logs/pytest.log` inside the
+container and can be read with `make logs-pytest-dev`.
 
 ### Frontend
 
@@ -154,7 +163,7 @@ make frontend-test          # runs npm test inside srcs/frontend/
 ### All tests
 
 ```bash
-make test                   # runs backend and frontend test suites
+make test                   # runs backend and frontend suites sequentially
 ```
 
 ---
