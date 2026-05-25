@@ -20,6 +20,11 @@ dependencies = [
 dev = [
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "pytest-django>=4.9.0",
     "ruff>=0.15.12",
     "typer>=0.25.1",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "core.settings"
+python_files = ["tests.py", "test_*.py"]
