@@ -12,15 +12,16 @@ llm = LLM (
     model=os.getenv("MODEL", "gemini-2.5-flash"),
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7,
-    stream=True
+    stream=True,
 )
+
 
 class CodeReviewState(BaseModel):
     """
     State class for the code review flow, holding the code bundle and repository URL
     """
     code_bundle: str = ""
-    repo_url: str = "local_analysis"  
+    repo_url: str = "local_analysis"
 
 
 class CodeReviewFlow(Flow[CodeReviewState]):
@@ -35,10 +36,16 @@ class CodeReviewFlow(Flow[CodeReviewState]):
 
     @listen(prepare)
     def run_crew(self):
-        result = SecurityCrew().crew().kickoff(inputs={
-            "repo_url": self.state.repo_url,
-            "code_bundle": self.state.code_bundle,
-        })
+        result = (
+            SecurityCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "repo_url": self.state.repo_url,
+                    "code_bundle": self.state.code_bundle,
+                }
+            )
+        )
         print("Crew finished. Reports written to /output/")
 
 

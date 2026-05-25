@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,31 +14,76 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('source', models.CharField(choices=[('pasted_code', 'Pasted Code'), ('uploaded_files', 'Uploaded Files')], max_length=20)),
-                ('label', models.CharField(choices=[('snippet', 'Code Snippet'), ('filename', 'Filename')], max_length=20)),
-                ('score', models.IntegerField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "source",
+                    models.CharField(
+                        choices=[
+                            ("pasted_code", "Pasted Code"),
+                            ("uploaded_files", "Uploaded Files"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "label",
+                    models.CharField(
+                        choices=[("snippet", "Code Snippet"), ("filename", "Filename")],
+                        max_length=20,
+                    ),
+                ),
+                ("score", models.IntegerField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='ReviewResult',
+            name="ReviewResult",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bug_report', models.TextField(blank=True, null=True)),
-                ('security_report', models.TextField(blank=True, null=True)),
-                ('style_report', models.TextField(blank=True, null=True)),
-                ('performance_report', models.TextField(blank=True, null=True)),
-                ('final_report', models.TextField(blank=True, null=True)),
-                ('overall_score', models.IntegerField(blank=True, null=True)),
-                ('review', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='result', to='multigent.review')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("bug_report", models.TextField(blank=True, null=True)),
+                ("security_report", models.TextField(blank=True, null=True)),
+                ("style_report", models.TextField(blank=True, null=True)),
+                ("performance_report", models.TextField(blank=True, null=True)),
+                ("final_report", models.TextField(blank=True, null=True)),
+                ("overall_score", models.IntegerField(blank=True, null=True)),
+                (
+                    "review",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="result",
+                        to="multigent.review",
+                    ),
+                ),
             ],
         ),
     ]

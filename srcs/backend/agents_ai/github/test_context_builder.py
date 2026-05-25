@@ -1,4 +1,3 @@
-
 import tempfile
 import os
 import pytest
@@ -10,6 +9,7 @@ from agents_ai.github.context_builder import (
 
 
 #  build_context_from_file
+
 
 def test_build_context_from_file_returns_bundle():
     files = [
@@ -34,7 +34,8 @@ def test_build_context_from_file_empty_list():
     assert result["files_included"] == []
 
 
-# build_context_from_pasted_code 
+# build_context_from_pasted_code
+
 
 def test_build_context_from_pasted_code_returns_code():
     code = "def foo():\n    return 42"
