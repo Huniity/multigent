@@ -13,8 +13,8 @@ function validate(form: LoginForm): FieldErrors<LoginForm> {
 
   if (!form.password) {
     errors.password = 'Password is required.';
-  } else if (form.password.length < 8) {
-    errors.password = 'Password must be at least 8 characters.';
+  } else if (form.password.length < 4) {
+    errors.password = 'Password must be at least 4 characters.';
   }
 
   return errors;

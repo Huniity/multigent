@@ -66,10 +66,10 @@ export default function Home() {
       const advanceTimer = setTimeout(() => {
         setStep((s) => Math.min(s + 1, LOADING_MESSAGES.length - 1));
         setMsgVisible(true);
-      }, 350);
+      }, 450);
 
       return () => clearTimeout(advanceTimer);
-    }, 1800);
+    }, 3000);
 
     return () => clearTimeout(showTimer);
   }, [loading, step]);
@@ -197,7 +197,13 @@ export default function Home() {
             >
               →&nbsp;&nbsp;Submit for review
             </button>
-            <span className="text-[11px] text-[#30303e]">2 agents · async</span>
+            <span className="text-[11px] text-[#f0ede5]">5 agents</span>
+            <span className="text-[11px] text-[#aaef5a]">Bug Report Agent</span>
+            <span className="text-[11px] text-[#aaef5a]">Security Agent</span>
+            <span className="text-[11px] text-[#aaef5a]">Performance Agent</span>
+            <span className="text-[11px] text-[#aaef5a]">Quality Agent</span>
+            <span className="text-[11px] text-[#aaef5a]">Style Agent</span>
+
           </div>
 
         </form>

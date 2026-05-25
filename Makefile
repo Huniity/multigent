@@ -36,6 +36,8 @@ env: ## Create .env file if it doesn't exist
 		printf "ALLOWED_HOSTS=localhost,127.0.0.1,backend, *\n" >> .env; \
 		printf "DJANGO_SETTINGS_MODULE=core.settings\n" >> .env; \
 		printf "SECRET_KEY=django-insecure-n@yjki0(^_d89!g@0u8t77ao-q&=l#m!^-98kaz@#*hud5j62*\n" >> .env; \
+		printf "GEMINI_API_KEY=\n" >> .env; \
+		printf "MODEL=gemini-2.5-flash\n" >> .env; \
 		printf "\n" >> .env; \
 		printf "# Production settings\n" >> .env; \
 		printf "\n" >> .env; \

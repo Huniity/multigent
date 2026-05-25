@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { authFetch } from '../utils/authFetch';
 
 // Types
@@ -142,9 +144,36 @@ function CompleteState({ review }: { review: Review }) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-10 py-8">
-        <pre className="bg-[#060608] border border-[#18181e] p-5 text-xs text-[#e2dfda] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap text-left">
-          {reports[tab].content || 'No output for this report.'}
-        </pre>
+        <div className="prose-report">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ children }) => <h1 className="text-xl font-bold text-[#f0ede5] mb-4 mt-6 first:mt-0" style={{ fontFamily: "'Syne', sans-serif" }}>{children}</h1>,
+              h2: ({ children }) => <h2 className="text-base font-bold text-[#c0bcb5] mb-3 mt-6 first:mt-0" style={{ fontFamily: "'Syne', sans-serif" }}>{children}</h2>,
+              h3: ({ children }) => <h3 className="text-sm font-bold text-[#a0a0b0] mb-2 mt-4">{children}</h3>,
+              p:  ({ children }) => <p className="text-sm text-[#787891] leading-relaxed mb-3">{children}</p>,
+              ul: ({ children }) => <ul className="list-disc list-inside text-sm text-[#787891] mb-3 space-y-1 pl-2">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal list-inside text-sm text-[#787891] mb-3 space-y-1 pl-2">{children}</ol>,
+              li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+              code: ({ className, children, ...props }) => {
+                const isBlock = className?.includes('language-');
+                return isBlock
+                  ? <code className={`block bg-[#060608] border border-[#18181e] p-4 text-xs text-[#90d860] font-mono leading-relaxed overflow-x-auto whitespace-pre mb-3 ${className ?? ''}`} {...props}>{children}</code>
+                  : <code className="bg-[#0d0d11] text-[#aaef5a] text-xs px-1.5 py-0.5 font-mono" {...props}>{children}</code>;
+              },
+              pre: ({ children }) => <>{children}</>,
+              blockquote: ({ children }) => <blockquote className="border-l-2 border-[#28282e] pl-4 text-[#787891] italic mb-3">{children}</blockquote>,
+              strong: ({ children }) => <strong className="font-bold text-[#c0bcb5]">{children}</strong>,
+              hr: () => <hr className="border-[#18181e] my-6" />,
+              a: ({ href, children }) => <a href={href} className="text-[#aaef5a] underline hover:opacity-80" target="_blank" rel="noreferrer">{children}</a>,
+              table: ({ children }) => <div className="overflow-x-auto mb-4"><table className="w-full text-xs text-[#787891] border-collapse">{children}</table></div>,
+              th: ({ children }) => <th className="border border-[#18181e] px-3 py-2 text-left text-[#c0bcb5] font-bold bg-[#0d0d11]">{children}</th>,
+              td: ({ children }) => <td className="border border-[#18181e] px-3 py-2">{children}</td>,
+            }}
+          >
+            {reports[tab].content || '*No output for this report.*'}
+          </ReactMarkdown>
+        </div>
       </div>
     </div>
   )
