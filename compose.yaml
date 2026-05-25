@@ -32,6 +32,7 @@ services:
     env_file: .env
     volumes:
       - ./srcs/backend:/app
+      - /app/.venv
       - ./scripts:/scripts
       - django_logs:/app/logs
     ports:
