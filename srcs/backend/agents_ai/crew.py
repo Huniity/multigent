@@ -1,10 +1,7 @@
 import re
-
 from pathlib import Path
 from typing import List
-
 from concurrent.futures import ThreadPoolExecutor
-
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
 from crewai.agents.agent_builder.base_agent import BaseAgent
