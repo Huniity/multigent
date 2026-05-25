@@ -233,7 +233,6 @@ multigent/
 ├── .editorconfig
 ├── .pre-commit-config.yaml
 ├── .python-version
-├── ARCHITECTURE.md
 ├── CONTRIBUTORS.md
 ├── LICENSE
 ├── Makefile
@@ -293,6 +292,7 @@ multigent/
     │   └── uv.lock
     └── frontend/
         ├── .gitignore
+        ├── README.md
         ├── eslint.config.js
         ├── index.html
         ├── jsconfig.json
@@ -328,7 +328,7 @@ The majority of frontend — visual design language, component architecture, pag
 
 ### Backend
 
-
+The backend team used AI assistance, specifically **Claude** and **Gemini**, across several areas of the Django and infrastructure work. Docker and Docker Compose configuration — including the multi-stage Dockerfile setup, the nginx reverse proxy configuration, and the production compose file — was drafted with AI help and iterated on from there. The pytest suite followed the same pattern: AI generated the boilerplate test structure which the team then extended with project-specific cases. CI/CD pipeline research and configuration was also AI-assisted. On the agent side, the CrewAI agent and task definitions (`agents.yaml`, `tasks.yaml`) — including role descriptions, goal prompts, backstories, and expected output formats for all five agents — were configured with AI assistance, then refined through testing against real code submissions.
 
 ### Documentation
 
