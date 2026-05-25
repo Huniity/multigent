@@ -1,8 +1,11 @@
+from pathlib import Path
+from typing import List
+
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
+from crewai.agents.agent_builder.base_agent import BaseAgent
 #from crewai_tools import FileReadTool
-import yaml
-from pathlib import Path
+
 
 @CrewBase
 class SecurityCrew():
@@ -13,7 +16,6 @@ class SecurityCrew():
     tasks_config = "config/tasks.yaml"
     
     
-
     @agent
     def security_analyzer(self) -> Agent:
         return Agent(
@@ -59,13 +61,6 @@ class SecurityCrew():
             verbose=True,
             allow_delegation=False
         )
-        
-    def build_bug_task(self, repo_url, list_of_code_files):
-        bundle = ""
-        for file in list_of_code_files:
-            bundle += f"\n--- FILE: {file.get('name', 'unknown')} ---\n"
-            bundle += file.get('content', '')
-        return bundle
 
 
     @task
@@ -114,3 +109,26 @@ class SecurityCrew():
             process=Process.sequential, 
             verbose=True
         )
+
+    
+
+    def _read_output(self, filename: str) -> str:
+        path = Path(__file__).parent / filename
+        if path.exists():
+            return path.read_text(encoding='utf-8')
+        return ''
+
+    def run(self, bundle: dict) -> dict:
+        inputs = {
+            'code_bundle': bundle['code_bundle'],
+            'repo_url': ', '.join(bundle['files_included']) or 'pasted snippet',
+        }
+        self.crew().kickoff(inputs=inputs)
+        return {
+            'bug_report':         self._read_output('output/bug_report.md'),
+            'security_report':    self._read_output('output/security_report.md'),
+            'style_report':       self._read_output('output/style_report.md'),
+            'performance_report': self._read_output('output/performance_report.md'),
+            'final_report':       self._read_output('output/final_report.md'),
+            'overall_score':      None,
+        }
