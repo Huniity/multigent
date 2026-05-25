@@ -7,12 +7,12 @@ from crewai.project import CrewBase, agent, task, crew
 from crewai.agents.agent_builder.base_agent import BaseAgent
 
 
-
 @CrewBase
-class SecurityCrew():
+class SecurityCrew:
     """
     Class representing a crew of agents for code review
     """
+
     agents: List[BaseAgent]
     tasks: List[Task]
 
@@ -20,116 +20,115 @@ class SecurityCrew():
     tasks_config = "config/tasks.yaml"
 
     @agent
-    """
-    Security Analyzer: Responsible for analyzing the code for security vulnerabilities
-    """
     def security_analyzer(self) -> Agent:
+        """
+        Security Analyzer: Responsible for analyzing the code for security vulnerabilities
+        """
         return Agent(
-            config=self.agents_config['security_analyzer'],
+            config=self.agents_config["security_analyzer"],
             verbose=True,
             allow_delegation=False,
         )
 
     @agent
-    """
-    Performance Profiler: Responsible for analyzing the code for performance issues
-    """
     def performance_profiler(self) -> Agent:
+        """
+        Performance Profiler: Responsible for analyzing the code for performance issues
+        """
         return Agent(
-            config=self.agents_config['performance_profiler'],
+            config=self.agents_config["performance_profiler"],
             verbose=True,
             allow_delegation=False,
         )
 
     @agent
-    """
-    Bug Detector: Responsible for identifying bugs and logical errors in the code
-    """
     def bug_detector(self) -> Agent:
+        """
+        Bug Detector: Responsible for identifying bugs and logical errors in the code
+        """
         return Agent(
-            config=self.agents_config['bug_detector'],
+            config=self.agents_config["bug_detector"],
             verbose=True,
             allow_delegation=False,
         )
 
     @agent
-    """
-    Style Reviewer: Responsible for reviewing the code for style and best practices
-    """
     def style_reviewer(self) -> Agent:
+        """
+        Style Reviewer: Responsible for reviewing the code for style and best practices
+        """
         return Agent(
-            config=self.agents_config['style_reviewer'],
+            config=self.agents_config["style_reviewer"],
             verbose=True,
             allow_delegation=False,
         )
 
     @agent
-    """
-    Review Leader: Responsible for leading the code review process and coordinating between All agents
-    """
     def review_leader(self) -> Agent:
+        """
+        Review Leader: Responsible for leading the code review process and coordinating between All agents
+        """
         return Agent(
-            config=self.agents_config['review_leader'],
+            config=self.agents_config["review_leader"],
             verbose=True,
             allow_delegation=False,
         )
 
     @task
-    """
-    Security Audit Task: Task for performing a security audit on the code
-    """
     def security_audit_task(self) -> Task:
+        """
+        Security Audit Task: Task for performing a security audit on the code
+        """
         return Task(
             config=self.tasks_config["security_audit_task"],
             output_file="output/security_report.md",
         )
 
     @task
-    """
-    Bug Detection Task: Task for identifying bugs and logical errors in the code
-    """
     def bug_detection_task(self) -> Task:
+        """
+        Bug Detection Task: Task for identifying bugs and logical errors in the code
+        """
         return Task(
             config=self.tasks_config["bug_detection_task"],
             output_file="output/bug_report.md",
         )
 
     @task
-    """
-    Performance Analysis Task: Task for analyzing the code for performance issues
-    """
     def performance_analysis_task(self) -> Task:
+        """
+        Performance Analysis Task: Task for analyzing the code for performance issues
+        """
         return Task(
             config=self.tasks_config["performance_analysis_task"],
             output_file="output/performance_report.md",
         )
 
     @task
-    """
-    Style Review Task: Task for reviewing the code for style and best practices
-    """
     def style_review_task(self) -> Task:
+        """
+        Style Review Task: Task for reviewing the code for style and best practices
+        """
         return Task(
             config=self.tasks_config["style_review_task"],
             output_file="output/style_report.md",
         )
 
     @task
-    """
-    Final Report Task: Task for generating the final report summarizing all findings
-    """
     def final_report_task(self) -> Task:
+        """
+        Final Report Task: Task for generating the final report summarizing all findings
+        """
         return Task(
             config=self.tasks_config["final_report_task"],
             output_file="output/final_report.md",
         )
 
     @crew
-    """
-    Crew: Combines all agents and tasks into a cohesive unit for executing the code review process
-    """
     def crew(self) -> Crew:
-        """Cria e junta a equipa na ordem sequencial correta"""
+        """
+        Crew: Combines all agents and tasks into a cohesive unit for executing the code review process
+        """
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
@@ -147,7 +146,9 @@ class SecurityCrew():
 
     def _parse_score(self, final_report: str) -> int | None:
         """Helper method to parse the overall health score from the final report"""
-        match = re.search(r'(?:Overall Health Score|Health Score)[^\d]*(\d{1,3})', final_report)
+        match = re.search(
+            r"(?:Overall Health Score|Health Score)[^\d]*(\d{1,3})", final_report
+        )
         if match:
             return int(match.group(1))
         return None

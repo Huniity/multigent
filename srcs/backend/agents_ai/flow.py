@@ -5,10 +5,10 @@ from crewai import LLM
 import os
 
 
-llm = LLM (
-    """
-    Gemini-2.5-Flash is a powerful language model designed for code analysis and review tasks. 
-    """
+"""
+Gemini-2.5-Flash is a powerful language model designed for code analysis and review tasks. 
+"""
+llm = LLM(
     model=os.getenv("MODEL", "gemini-2.5-flash"),
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7,
@@ -20,6 +20,7 @@ class CodeReviewState(BaseModel):
     """
     State class for the code review flow, holding the code bundle and repository URL
     """
+
     code_bundle: str = ""
     repo_url: str = "local_analysis"
 
@@ -28,6 +29,7 @@ class CodeReviewFlow(Flow[CodeReviewState]):
     """
     Flow class for orchestrating the code review process using the SecurityCrew
     """
+
     @start()
     def prepare(self, payload: dict | None = None):
         if payload:
@@ -36,7 +38,7 @@ class CodeReviewFlow(Flow[CodeReviewState]):
 
     @listen(prepare)
     def run_crew(self):
-        result = (
+        (
             SecurityCrew()
             .crew()
             .kickoff(
