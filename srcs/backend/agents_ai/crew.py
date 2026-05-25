@@ -130,12 +130,12 @@ class SecurityCrew():
         return None
 
     def _run_crew(self, agent, task, inputs: dict):
-    Crew(
-        agents=[agent],
-        tasks=[task],
-        process=Process.sequential,
-        verbose=True,
-    ).kickoff(inputs=inputs)
+        Crew(
+            agents=[agent],
+            tasks=[task],
+            process=Process.sequential,
+            verbose=True,
+        ).kickoff(inputs=inputs)
 
     def run(self, bundle: dict) -> dict:
         inputs = {
