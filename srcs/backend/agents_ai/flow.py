@@ -6,7 +6,7 @@ import os
 
 
 """
-Gemini-2.5-Flash is a powerful language model designed for code analysis and review tasks. 
+Gemini-2.5-Flash is a powerful language model designed for code analysis and review tasks.
 """
 llm = LLM(
     model=os.getenv("MODEL", "gemini-2.5-flash"),

@@ -96,6 +96,7 @@ Run `make help` at any time to see all targets with descriptions.
 
 | Target | Description |
 |---|---|
+| `make up` | Build and start the production stack (nginx on port 80) |
 | `make start-dev` | Build and start all services, wait for the database, run migrations, and prompt for a superuser — the recommended first-run command |
 | `make up-dev` | Start the development stack (without the readiness check) |
 | `make up-prod` | Build and start the production stack (nginx on port 80) |
@@ -139,8 +140,8 @@ Run `make help` at any time to see all targets with descriptions.
 ### Backend
 
 ```bash
-make backend-test-dev       # runs pytest inside the development container
-make backend-test-prod      # runs pytest inside the production container
+make backend-test-dev
+make backend-test-prod
 ```
 
 The active test suite covers the context builder module
@@ -148,65 +149,24 @@ The active test suite covers the context builder module
 pytest cases validating both `build_context_from_file` and
 `build_context_from_pasted_code` — including empty input handling,
 correct bundle construction, and accurate `files_included` output.
-
-Django test stubs exist in `agents_ai/tests.py` and
-`multigent/tests.py` for future expansion of model and view coverage.
 Logs from each run are written to `/app/logs/pytest.log` inside the
 container and can be read with `make logs-pytest-dev`.
 
 ### Frontend
 
 ```bash
-make frontend-test          # runs npm test inside srcs/frontend/
+make frontend-test
 ```
 
 ### All tests
 
 ```bash
-make test                   # runs backend and frontend suites sequentially
+make test
 ```
 
 ---
 
-## CLI — devmate
 
-`devmate` is a Typer-based command-line tool for running Multigent tasks outside of Docker — useful during development for triggering crew runs, inspecting output, and managing the local environment.
-
-```bash
-uv run devmate --help
-```
-
-```
-Usage: devmate [OPTIONS] COMMAND [ARGS]...
-
-  Multigent developer CLI.
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  run       Submit a code snippet or file to the crew and print the report.
-  score     Extract and display the health score from the latest final report.
-  reports   List generated report files in the output/ directory.
-  clean     Delete all files in output/.
-```
-
-**Examples:**
-
-```bash
-# Run the full crew on a local file
-uv run devmate run --file srcs/backend/multigent/views.py
-
-# Run on pasted code from stdin
-cat myfile.py | uv run devmate run --stdin
-
-# Print the health score from the last run
-uv run devmate score
-```
-
-> `devmate` requires the local Python environment to be set up with `make prepare` and a valid `GEMINI_API_KEY` in `.env`.
-
----
 
 ## Architecture
 

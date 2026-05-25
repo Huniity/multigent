@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List
+from typing import Any, List
 from concurrent.futures import ThreadPoolExecutor
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
@@ -16,8 +16,8 @@ class SecurityCrew:
     agents: List[BaseAgent]
     tasks: List[Task]
 
-    agents_config = "config/agents.yaml"
-    tasks_config = "config/tasks.yaml"
+    agents_config: Any = "config/agents.yaml"
+    tasks_config: Any = "config/tasks.yaml"
 
     @agent
     def security_analyzer(self) -> Agent:

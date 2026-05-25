@@ -1,4 +1,4 @@
-.PHONY: help up-dev up-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test
+.PHONY: help up up-dev up-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test test
 
 requirements: ## Generate requirements.txt from pyproject.toml
 	uv pip compile ./srcs/backend/pyproject.toml -o ./srcs/backend/requirements.txt
@@ -49,7 +49,7 @@ env: ## Create .env file if it doesn't exist
 	@echo "Environment variables:"
 	@cat .env
 
-	
+
 
 start-dev: ## Start dev workflow with strict database readiness check
 	@echo "Starting Docker containers in background..."
@@ -69,6 +69,9 @@ start-dev: ## Start dev workflow with strict database readiness check
 sync-dev:
 	cd srcs/frontend && npm install && cd ../../ && cd srcs/backend && uv sync && cd ../../
 
+up: ## Start production environment on port 80 (alias for up-prod)
+	docker compose -f compose.prod.yaml up --build
+
 up-dev: ## Start development environment
 	docker compose -f compose.yaml up
 	$(MAKE) migrate-dev
@@ -83,7 +86,7 @@ clean: ## Stop and remove all containers, volumes, and orphans
 migrate-dev: ## Run database migrations in development environment
 	docker compose -f compose.yaml exec backend python manage.py migrate
 
-migrate-prod: ## Run database migrations in production environment	
+migrate-prod: ## Run database migrations in production environment
 	docker compose -f compose.prod.yaml exec backend python manage.py migrate
 
 migration-dev: ## Create new database migrations in development environment
@@ -112,6 +115,10 @@ backend-test-prod: ## Run backend tests in production environment
 
 frontend-test: ## Run frontend tests
 	cd srcs/frontend && npm run test
+
+test: ## Run backend and frontend test suites sequentially
+	$(MAKE) backend-test-dev
+	$(MAKE) frontend-test
 
 logs-backend-dev: ## Backend logs in development environment
 	docker compose -f compose.yaml exec backend tail -f /app/logs/django.log
