@@ -1,4 +1,4 @@
-.PHONY: help up up-dev up-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test test
+.PHONY: help up up-dev up-prod start-dev start-prod clean migrate-dev migrate-prod migration-dev migration-prod superuser-dev superuser-prod check-dev check-prod backend-test-dev backend-test-prod frontend-test test
 
 requirements: ## Generate requirements.txt from pyproject.toml
 	uv pip compile ./srcs/backend/pyproject.toml -o ./srcs/backend/requirements.txt
@@ -69,6 +69,23 @@ start-dev: ## Start dev workflow with strict database readiness check
 sync-dev:
 	cd srcs/frontend && npm install && cd ../../ && cd srcs/backend && uv sync && cd ../../
 
+start-prod: ## Start prod workflow with database readiness check, migrations, and logs
+	@echo "Starting production containers in background..."
+	docker compose -f compose.prod.yaml up --build -d
+	@echo "Waiting for PostgreSQL and Django backend to be fully ready..."
+	@until docker compose -f compose.prod.yaml exec backend python manage.py check > /dev/null 2>&1; do \
+		echo "Backend not ready yet... checking again in 2 seconds"; \
+		sleep 2; \
+	done
+	@echo "Backend is ready! Running migrations..."
+	$(MAKE) migration-prod
+	$(MAKE) migrate-prod
+	@echo "Creating default admin user..."
+	docker compose -f compose.prod.yaml exec backend python manage.py shell -c \
+		"from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', '', 'admin')"
+	@echo "Setup complete! Open http://localhost:80 — attaching to logs..."
+	docker compose -f compose.prod.yaml logs -f
+
 up: ## Start production environment on port 80 (alias for up-prod)
 	docker compose -f compose.prod.yaml up --build
 
@@ -77,7 +94,7 @@ up-dev: ## Start development environment
 	$(MAKE) migrate-dev
 
 up-prod: ## Start production environment
-	docker compose -f compose.prod.yaml up --build
+	docker compose -f compose.prod.yaml up
 
 clean: ## Stop and remove all containers, volumes, and orphans
 	docker compose -f compose.yaml down -v --remove-orphans
