@@ -31,8 +31,8 @@ Multigent accepts a code snippet and routes it through five specialised AI agent
 ```bash
 git clone https://github.com/Huniity/multigent.git
 cd multigent
-cp .env.example .env        # then edit .env and add your GEMINI_API_KEY
-make up
+make env        # then edit .env and add your GEMINI_API_KEY
+make start-prod
 ```
 
 Open **http://localhost:80** in your browser.
